@@ -99,17 +99,17 @@ export function validateAndNormalizePlan(
   const today = new Date().toISOString().slice(0, 10);
   const eventDate = context.eventDate;
 
-  // 1. Budget Normalization: Ensure sum of categories does not exceed totalBudget
+  // 1. Budget Normalization: Ensure sum of categories matches totalBudget within 5% tolerance
   if (context.totalBudget > 0 && plan.budget_categories.length > 0) {
     const currentSum = plan.budget_categories.reduce(
       (acc, cat) => acc + cat.suggested_amount,
       0
     );
 
-    // If there is a noticeable variance (> 5%), rebalance proportionally to match totalBudget
-    if (Math.abs(currentSum - context.totalBudget) > 100) {
+    const tolerance = context.totalBudget * 0.05;
+    if (Math.abs(currentSum - context.totalBudget) > tolerance) {
       warnings.push(
-        `Budget allocations rebalanced to strictly equal event budget ₹${context.totalBudget.toLocaleString('en-IN')}.`
+        `Budget allocations rebalanced to match event budget ₹${context.totalBudget.toLocaleString('en-IN')}.`
       );
       const ratio = currentSum > 0 ? context.totalBudget / currentSum : 1;
 
@@ -129,31 +129,17 @@ export function validateAndNormalizePlan(
   // 2. Chronological Sanity: Clamps task due dates between today and eventDate
   plan.tasks = plan.tasks.map((task) => {
     let date = task.suggested_due_date || eventDate;
-    if (date > eventDate) {
-      date = eventDate;
-    }
-    if (date < today && eventDate >= today) {
-      date = today;
-    }
-    return {
-      ...task,
-      suggested_due_date: date,
-    };
+    if (date > eventDate) date = eventDate;
+    if (date < today) date = today;
+    return { ...task, suggested_due_date: date };
   });
 
   // 3. Chronological Sanity: Clamps milestones between today and eventDate
   plan.milestones = plan.milestones.map((ms) => {
     let date = ms.suggested_date || eventDate;
-    if (date > eventDate) {
-      date = eventDate;
-    }
-    if (date < today && eventDate >= today) {
-      date = today;
-    }
-    return {
-      ...ms,
-      suggested_date: date,
-    };
+    if (date > eventDate) date = eventDate;
+    if (date < today) date = today;
+    return { ...ms, suggested_date: date };
   });
 
   // 4. Deduplicate task titles
@@ -202,9 +188,6 @@ export function generateDeterministicPlan(context: EventContextSummary): Generat
     }
     return d.toISOString().slice(0, 10);
   };
-
-  const isWedding = context.type.toLowerCase().includes('wedding');
-  const isBirthday = context.type.toLowerCase().includes('birthday');
 
   // Budget Splits
   const budgetAllocations = [

@@ -84,7 +84,7 @@ export async function callGeminiApi(
     );
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
   // Assemble request body adhering to Google GenAI REST specifications
   const requestBody: Record<string, unknown> = {
@@ -111,6 +111,7 @@ export async function callGeminiApi(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
       },
       body: JSON.stringify(requestBody),
       signal: controller.signal,

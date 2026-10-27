@@ -71,42 +71,48 @@ export async function buildEventPlanningContext(
     return null;
   }
 
-  // 2. Fetch event preferences
-  const { data: preferences } = await supabase
-    .from('event_preferences')
-    .select('*')
-    .eq('event_id', eventId)
-    .maybeSingle();
+  // Parallelize remaining 6 queries for better performance
+  const [
+    preferencesResult,
+    categoriesResult,
+    expensesResult,
+    tasksResult,
+    vendorsResult,
+    guestsResult,
+  ] = await Promise.all([
+    supabase
+      .from('event_preferences')
+      .select('*')
+      .eq('event_id', eventId)
+      .maybeSingle(),
+    supabase
+      .from('budget_categories')
+      .select('name, planned_amount')
+      .eq('event_id', eventId),
+    supabase
+      .from('expenses')
+      .select('actual_amount, category_id')
+      .eq('event_id', eventId),
+    supabase
+      .from('tasks')
+      .select('id, title, status, priority, due_date')
+      .eq('event_id', eventId),
+    supabase
+      .from('vendors')
+      .select('id, category, status')
+      .eq('event_id', eventId),
+    supabase
+      .from('guests')
+      .select('rsvp_status')
+      .eq('event_id', eventId),
+  ]);
 
-  // 3. Fetch budget categories
-  const { data: categories } = await supabase
-    .from('budget_categories')
-    .select('name, planned_amount')
-    .eq('event_id', eventId);
-
-  // 4. Fetch expenses
-  const { data: expenses } = await supabase
-    .from('expenses')
-    .select('actual_amount, category_id')
-    .eq('event_id', eventId);
-
-  // 5. Fetch tasks
-  const { data: tasks } = await supabase
-    .from('tasks')
-    .select('id, title, status, priority, due_date')
-    .eq('event_id', eventId);
-
-  // 6. Fetch vendors
-  const { data: vendors } = await supabase
-    .from('vendors')
-    .select('id, category, status')
-    .eq('event_id', eventId);
-
-  // 7. Fetch guests summary (count aggregations only — ZERO PII)
-  const { data: guests } = await supabase
-    .from('guests')
-    .select('rsvp_status')
-    .eq('event_id', eventId);
+  const preferences = preferencesResult.data;
+  const categories = categoriesResult.data;
+  const expenses = expensesResult.data;
+  const tasks = tasksResult.data;
+  const vendors = vendorsResult.data;
+  const guests = guestsResult.data;
 
   // Calculations
   const today = new Date();
