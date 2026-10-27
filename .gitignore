@@ -1,0 +1,15 @@
+/docs/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Next.js
+.next/
+
+# Dependencies
+node_modules/
+
+# Build/cache
+*.tsbuildinfo
