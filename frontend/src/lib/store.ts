@@ -25,6 +25,7 @@ import {
 } from "./mock-data";
 import { uid } from "./format";
 import { getCurrentUser, onAuthStateChange, signOutUser } from "./auth";
+import { apiClient } from "./api-client";
 
 export type PublicView =
   | "home"
@@ -476,31 +477,44 @@ function generateAssistantResponse(
 
 // Helper: generate an AI response for an event without re-adding the user message.
 // Used by both sendChatMessage (initial send) and retryLastMessage (retry on failure).
-// This prevents duplicate user messages when a user retries a failed request.
-function generateResponseForEvent(
+// Calls server-side /api/ai/chat endpoint with graceful fallback for offline/demo events.
+async function generateResponseForEvent(
   eventId: string,
   content: string,
   get: () => AppState,
   set: (partial: Partial<AppState> | ((s: AppState) => Partial<AppState>)) => void
 ): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    // Generate a thoughtful canned response based on event context and message.
-    // In production this would be an authenticated API call to an AI model.
-    // The 900ms delay simulates network + model latency. A small failure rate
-    // exercises the error UI path so users see the retry affordance.
-    const event = get().events.find((e) => e.id === eventId);
-    const tasks = get().tasks.filter((t) => t.eventId === eventId);
-    const response = generateAssistantResponse(content, event, tasks);
+  try {
+    const res = await apiClient.ai.chat(eventId, content);
 
-    setTimeout(() => {
-      // Simulate transient failures (~10% of the time) so the error UI
-      // and retry button are reachable. This mirrors real-world AI API
-      // behavior where rate limits and network hiccups occur.
-      const shouldFail = Math.random() < 0.1;
-      if (shouldFail) {
-        reject(new Error("AI service temporarily unavailable"));
-        return;
-      }
+    if (res.success && res.data) {
+      const responseText = res.data.response;
+      set((s) => ({
+        chatMessages: {
+          ...s.chatMessages,
+          [eventId]: [
+            ...(s.chatMessages[eventId] ?? []),
+            {
+              id: uid("msg"),
+              role: "assistant",
+              content: responseText,
+              timestamp: new Date().toISOString(),
+              isAiGenerated: true,
+            },
+          ],
+        },
+      }));
+      return;
+    }
+
+    // If server returned NOT_FOUND or validation error (e.g. non-UUID demo event ID),
+    // fallback gracefully to context-aware local generator
+    const isClientDemoEvent = eventId.startsWith('evt-') || !eventId.includes('-');
+    if (isClientDemoEvent || res.error?.code === 'NOT_FOUND') {
+      const event = get().events.find((e) => e.id === eventId);
+      const tasks = get().tasks.filter((t) => t.eventId === eventId);
+      const response = generateAssistantResponse(content, event, tasks);
+
       set((s) => ({
         chatMessages: {
           ...s.chatMessages,
@@ -516,7 +530,36 @@ function generateResponseForEvent(
           ],
         },
       }));
-      resolve();
-    }, 900);
-  });
+      return;
+    }
+
+    throw new Error(res.error?.message || "AI service temporarily unavailable");
+  } catch (err: unknown) {
+    // If demo event in mock-data, provide fallback
+    const isClientDemoEvent = eventId.startsWith('evt-') || !eventId.includes('-');
+    if (isClientDemoEvent) {
+      const event = get().events.find((e) => e.id === eventId);
+      const tasks = get().tasks.filter((t) => t.eventId === eventId);
+      const response = generateAssistantResponse(content, event, tasks);
+
+      set((s) => ({
+        chatMessages: {
+          ...s.chatMessages,
+          [eventId]: [
+            ...(s.chatMessages[eventId] ?? []),
+            {
+              id: uid("msg"),
+              role: "assistant",
+              content: response,
+              timestamp: new Date().toISOString(),
+              isAiGenerated: true,
+            },
+          ],
+        },
+      }));
+      return;
+    }
+
+    throw err;
+  }
 }
