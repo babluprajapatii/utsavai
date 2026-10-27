@@ -12,6 +12,7 @@ import { PublicFooter } from "@/components/public/public-footer";
 import { Logo } from "@/components/shared/logo";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { signUpUser } from "@/lib/auth";
 
 interface FieldErrors {
   name?: string;
@@ -32,6 +33,7 @@ export function RegisterView() {
   const [terms, setTerms] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const validate = (): FieldErrors => {
     const e: FieldErrors = {};
@@ -47,17 +49,31 @@ export function RegisterView() {
     return e;
   };
 
-  const onSubmit = (ev: FormEvent) => {
+  const onSubmit = async (ev: FormEvent) => {
     ev.preventDefault();
+    setFormError(null);
     const e = validate();
     setErrors(e);
     if (Object.keys(e).length > 0) return;
 
     setSubmitting(true);
-    setTimeout(() => {
+    try {
+      const res = await signUpUser(email, password, name.trim());
+      if (!res.success) {
+        setFormError(res.error || "Failed to create account. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      const user = res.user;
+      register(name.trim(), email, user?.id);
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "An unexpected error occurred during registration.";
+      setFormError(msg);
+    } finally {
       setSubmitting(false);
-      register(name.trim(), email);
-    }, 800);
+    }
   };
 
   const passwordChecks = [
@@ -84,6 +100,21 @@ export function RegisterView() {
           </div>
 
           <Card className="p-6 sm:p-8 gap-0">
+            {formError && (
+              <div
+                role="alert"
+                className="mb-4 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive"
+                style={{
+                  borderColor: "oklch(0.55 0.18 25 / 0.3)",
+                  backgroundColor: "oklch(0.55 0.18 25 / 0.05)",
+                  color: "oklch(0.50 0.18 25)",
+                }}
+              >
+                <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                <span>{formError}</span>
+              </div>
+            )}
+
             <form onSubmit={onSubmit} className="space-y-4" noValidate>
               <div className="space-y-1.5">
                 <Label htmlFor="name">Full name</Label>

@@ -12,6 +12,7 @@ import { PublicFooter } from "@/components/public/public-footer";
 import { Logo } from "@/components/shared/logo";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { signInUser, signInWithGoogle } from "@/lib/auth";
 
 interface FieldErrors {
   email?: string;
@@ -44,7 +45,7 @@ export function LoginView() {
     return e;
   };
 
-  const onSubmit = (ev: FormEvent) => {
+  const onSubmit = async (ev: FormEvent) => {
     ev.preventDefault();
     setFormError(null);
     const e = validate();
@@ -52,12 +53,45 @@ export function LoginView() {
     if (Object.keys(e).length > 0) return;
 
     setSubmitting(true);
-    // Simulate request
-    setTimeout(() => {
+    try {
+      const res = await signInUser(email, password);
+      if (!res.success) {
+        setFormError(res.error || "Failed to sign in. Please verify your credentials.");
+        setSubmitting(false);
+        return;
+      }
+
+      const user = res.user;
+      const fullName =
+        user?.user_metadata?.full_name ||
+        user?.email?.split("@")[0] ||
+        email.split("@")[0] ||
+        "User";
+      login(email, fullName, user?.id);
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "An unexpected error occurred during login.";
+      setFormError(msg);
+    } finally {
       setSubmitting(false);
-      // Demo: accept any credentials
-      login(email);
-    }, 700);
+    }
+  };
+
+  const onGoogleLogin = async () => {
+    setFormError(null);
+    setSubmitting(true);
+    try {
+      const res = await signInWithGoogle();
+      if (res.error) {
+        setFormError(res.error);
+        setSubmitting(false);
+      }
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Google sign in failed.";
+      setFormError(msg);
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -204,7 +238,8 @@ export function LoginView() {
               type="button"
               variant="outline"
               className="w-full"
-              onClick={() => login("guest@google.com")}
+              onClick={onGoogleLogin}
+              disabled={submitting}
             >
               <GoogleIcon className="h-4 w-4 mr-2" />
               Continue with Google

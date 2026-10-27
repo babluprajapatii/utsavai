@@ -30,18 +30,23 @@ import { ExportView } from "@/components/views/export";
 export default function Home() {
   const route = useAppStore((s) => s.route);
   const isAuthed = useAppStore((s) => s.isAuthed);
+  const authLoading = useAppStore((s) => s.authLoading);
   const navigate = useAppStore((s) => s.navigate);
+  const initAuth = useAppStore((s) => s.initAuth);
 
-  // Auth guard: unauthenticated users cannot access onboarding or app views.
-  // This is a frontend-only guard for the demo. A real backend must re-verify
-  // auth on every API call - this guard alone is NOT sufficient for security.
+  // Initialize auth session from Supabase on mount
   useEffect(() => {
-    if (!isAuthed && route.kind !== "public") {
+    initAuth();
+  }, [initAuth]);
+
+  // Auth guard: unauthenticated users cannot access onboarding or app views
+  useEffect(() => {
+    if (!authLoading && !isAuthed && route.kind !== "public") {
       navigate({ kind: "public", view: "login" });
     }
-  }, [isAuthed, route.kind, navigate]);
+  }, [authLoading, isAuthed, route.kind, navigate]);
 
-  // Public views - always accessible
+  // Public views - always accessible immediately without waiting for auth session check
   if (route.kind === "public") {
     switch (route.view) {
       case "home":
@@ -65,8 +70,19 @@ export default function Home() {
     }
   }
 
+  // If restoring auth session for protected routes, show subtle loading indicator to prevent flash
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <span className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <p className="text-sm text-muted-foreground font-sans">Checking session...</p>
+        </div>
+      </div>
+    );
+  }
+
   // If not authed and trying to access protected views, show login
-  // (the useEffect above will redirect, but this prevents any flash)
   if (!isAuthed) {
     return <LoginView />;
   }

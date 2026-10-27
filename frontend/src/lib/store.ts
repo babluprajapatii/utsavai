@@ -24,6 +24,7 @@ import {
   demoVendors,
 } from "./mock-data";
 import { uid } from "./format";
+import { getCurrentUser, onAuthStateChange, signOutUser } from "./auth";
 
 export type PublicView =
   | "home"
@@ -67,9 +68,10 @@ export type Route =
   | { kind: "app"; view: AppView };
 
 interface AppState {
-  // Auth state (frontend-only demo)
+  // Auth state
   isAuthed: boolean;
-  user: { name: string; email: string } | null;
+  authLoading: boolean;
+  user: { id?: string; name: string; email: string } | null;
 
   // Navigation
   route: Route;
@@ -140,16 +142,23 @@ interface AppState {
   clearChat: (eventId: string) => void;
 
   // Auth actions
-  login: (email: string) => void;
-  register: (name: string, email: string) => void;
-  logout: () => void;
+  setUser: (user: { id?: string; name: string; email: string } | null) => void;
+  setAuthLoading: (loading: boolean) => void;
+  initAuth: () => Promise<void>;
+  login: (email: string, name?: string, id?: string) => void;
+  register: (name: string, email: string, id?: string) => void;
+  logout: () => Promise<void>;
 }
 
 const initialRoute: Route = { kind: "public", view: "home" };
 
 export const useAppStore = create<AppState>((set, get) => ({
   isAuthed: false,
+  authLoading: true,
   user: null,
+
+  setUser: (user) => set({ user, isAuthed: !!user }),
+  setAuthLoading: (authLoading) => set({ authLoading }),
 
   route: initialRoute,
   navigate: (route) => {
@@ -328,24 +337,100 @@ export const useAppStore = create<AppState>((set, get) => ({
       chatMessages: { ...s.chatMessages, [eventId]: [] },
     })),
 
-  login: (email) =>
+  initAuth: async () => {
+    try {
+      const user = await getCurrentUser();
+      if (user) {
+        const fullName =
+          user.user_metadata?.full_name ||
+          user.email?.split("@")[0] ||
+          "User";
+        set({
+          isAuthed: true,
+          authLoading: false,
+          user: {
+            id: user.id,
+            name: fullName,
+            email: user.email || "",
+          },
+        });
+      } else {
+        set({
+          isAuthed: false,
+          authLoading: false,
+          user: null,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to restore session:", err);
+      set({
+        isAuthed: false,
+        authLoading: false,
+        user: null,
+      });
+    }
+
+    onAuthStateChange((event, session) => {
+      if (session?.user) {
+        const fullName =
+          session.user.user_metadata?.full_name ||
+          session.user.email?.split("@")[0] ||
+          "User";
+        set({
+          isAuthed: true,
+          authLoading: false,
+          user: {
+            id: session.user.id,
+            name: fullName,
+            email: session.user.email || "",
+          },
+        });
+      } else if (event === "SIGNED_OUT") {
+        set({
+          isAuthed: false,
+          authLoading: false,
+          user: null,
+          route: { kind: "public", view: "home" },
+        });
+      }
+    });
+  },
+
+  login: (email, name, id) =>
     set({
       isAuthed: true,
-      user: { name: email.split("@")[0] || "User", email },
+      authLoading: false,
+      user: {
+        id: id || uid("usr"),
+        name: name || email.split("@")[0] || "User",
+        email,
+      },
       route: { kind: "app", view: "dashboard" },
     }),
-  register: (name, email) =>
+  register: (name, email, id) =>
     set({
       isAuthed: true,
-      user: { name, email },
+      authLoading: false,
+      user: {
+        id: id || uid("usr"),
+        name,
+        email,
+      },
       route: { kind: "onboarding", view: "onboarding_welcome" },
     }),
-  logout: () =>
+  logout: async () => {
+    try {
+      await signOutUser();
+    } catch (err) {
+      console.error("Sign out error:", err);
+    }
     set({
       isAuthed: false,
+      authLoading: false,
       user: null,
       route: { kind: "public", view: "home" },
-    }),
+    });
+  },
 }));
 
 function generateAssistantResponse(
