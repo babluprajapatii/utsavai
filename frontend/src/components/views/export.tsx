@@ -24,15 +24,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useAppStore } from "@/lib/store";
-import {
-  tasksForEvent,
-  vendorsForEvent,
-  guestsForEvent,
-  expensesForEvent,
-  timelineForEvent,
-  scheduleForEvent,
-  eventTypeMeta,
-} from "@/lib/mock-data";
+import { eventTypeMeta } from "@/lib/mock-data";
 import { formatINR, formatINRShort, formatDate, formatTime } from "@/lib/format";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { cn } from "@/lib/utils";
@@ -57,12 +49,12 @@ export function ExportView() {
     return <div className="text-center py-20 text-muted-foreground">No event selected.</div>;
   }
 
-  const eventTasks = tasksForEvent(tasks, event.id);
-  const eventVendors = vendorsForEvent(vendors, event.id);
-  const eventGuests = guestsForEvent(guests, event.id);
-  const eventExpenses = expensesForEvent(expenses, event.id);
-  const eventMilestones = timelineForEvent(milestones, event.id);
-  const eventSchedule = scheduleForEvent(schedule, event.id);
+  const eventTasks = event ? tasks.filter((task) => task.eventId === event.id) : [];
+  const eventVendors = event ? vendors.filter((vendor) => vendor.eventId === event.id) : [];
+  const eventGuests = event ? guests.filter((guest) => guest.eventId === event.id) : [];
+  const eventExpenses = event ? expenses.filter((expense) => expense.eventId === event.id) : [];
+  const eventMilestones = event ? milestones.filter((milestone) => milestone.eventId === event.id) : [];
+  const eventSchedule = event ? schedule.filter((item) => item.eventId === event.id) : [];
 
   const totalSpent = eventExpenses.reduce((s, e) => s + e.actualAmount, 0);
   const completedTasks = eventTasks.filter((t) => t.status === "completed").length;
@@ -374,8 +366,8 @@ function ExportTasks({ tasks }: { tasks: any[] }) {
             style={{
               backgroundColor:
                 t.status === "completed" ? "oklch(0.55 0.12 150)" :
-                t.status === "in_progress" ? "oklch(0.65 0.13 70)" :
-                "oklch(0.65 0.01 70)",
+                  t.status === "in_progress" ? "oklch(0.65 0.13 70)" :
+                    "oklch(0.65 0.01 70)",
             }}
           />
           <div className="flex-1 min-w-0">

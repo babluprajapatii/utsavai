@@ -55,7 +55,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAppStore } from "@/lib/store";
-import { ScheduleItem, scheduleForEvent } from "@/lib/mock-data";
+import { ScheduleItem } from "@/lib/mock-data";
 import { formatTime, formatTimeRange, formatDate } from "@/lib/format";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -85,7 +85,7 @@ export function EventDayView() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const eventSchedule = useMemo(
-    () => (event ? scheduleForEvent(schedule, event.id) : []),
+    () => (event ? schedule.filter((item) => item.eventId === event.id) : []),
     [schedule, event]
   );
 

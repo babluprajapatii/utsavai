@@ -67,7 +67,6 @@ import {
   Vendor,
   VendorStatus,
   vendorStatusMeta,
-  vendorsForEvent,
   BudgetCategory,
   categoryMeta,
 } from "@/lib/mock-data";
@@ -103,7 +102,7 @@ export function VendorsView() {
 
   const eventVendors = useMemo(() => {
     if (!event) return [];
-    let list = vendorsForEvent(vendors, event.id);
+    let list = vendors.filter((vendor) => vendor.eventId === event.id);
     if (search) {
       list = list.filter(
         (v) =>

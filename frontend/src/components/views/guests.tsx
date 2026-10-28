@@ -59,7 +59,6 @@ import {
   Guest,
   RsvpStatus,
   rsvpMeta,
-  guestsForEvent,
 } from "@/lib/mock-data";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -89,7 +88,7 @@ export function GuestsView() {
 
   const eventGuests = useMemo(() => {
     if (!event) return [];
-    let list = guestsForEvent(guests, event.id);
+    let list = guests.filter((guest) => guest.eventId === event.id);
     if (search) {
       list = list.filter(
         (g) =>
@@ -105,7 +104,7 @@ export function GuestsView() {
   const groups = useMemo(() => {
     if (!event) return [];
     const set = new Set<string>();
-    guestsForEvent(guests, event.id).forEach((g) => g.group && set.add(g.group));
+    guests.filter((g) => g.eventId === event.id).forEach((g) => g.group && set.add(g.group));
     return Array.from(set);
   }, [guests, event]);
 
@@ -113,7 +112,7 @@ export function GuestsView() {
     return <div className="text-center py-20 text-muted-foreground">No event selected.</div>;
   }
 
-  const allEventGuests = guestsForEvent(guests, event.id);
+  const allEventGuests = guests.filter((g) => g.eventId === event.id);
   const total = allEventGuests.length;
   const acceptedCount = allEventGuests.filter((g) => g.rsvp === "accepted").length;
   const pendingCount = allEventGuests.filter((g) => g.rsvp === "pending").length;

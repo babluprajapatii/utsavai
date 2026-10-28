@@ -17,7 +17,6 @@ import { useAppStore } from "@/lib/store";
 import {
   BudgetCategory,
   categoryMeta,
-  expensesForEvent,
 } from "@/lib/mock-data";
 import { formatINR, formatINRShort } from "@/lib/format";
 import { SectionHeading } from "@/components/shared/section-heading";
@@ -31,7 +30,7 @@ export function BudgetView() {
 
   const event = events.find((e) => e.id === currentEventId);
   const eventExpenses = useMemo(
-    () => (event ? expensesForEvent(expenses, event.id) : []),
+    () => (event ? expenses.filter((expense) => expense.eventId === event.id) : []),
     [expenses, event]
   );
 
@@ -382,13 +381,13 @@ export function BudgetView() {
           const pct = c.planned > 0 ? (c.spent / c.planned) * 100 : 0;
           const statusLabel =
             pct >= 100 ? "Over budget" :
-            pct >= 90 ? "Critical" :
-            pct >= 80 ? "Near limit" :
-            "On track";
+              pct >= 90 ? "Critical" :
+                pct >= 80 ? "Near limit" :
+                  "On track";
           const statusColor =
             pct >= 90 ? "oklch(0.55 0.18 25)" :
-            pct >= 80 ? "oklch(0.55 0.10 70)" :
-            "oklch(0.55 0.12 150)";
+              pct >= 80 ? "oklch(0.55 0.10 70)" :
+                "oklch(0.55 0.12 150)";
           return (
             <Card key={c.cat} className="p-4 gap-0">
               <div className="flex items-start justify-between gap-2">

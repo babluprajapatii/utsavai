@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAppStore } from "@/lib/store";
-import { TimelineMilestone, timelineForEvent, tasksForEvent } from "@/lib/mock-data";
+import { TimelineMilestone } from "@/lib/mock-data";
 import { formatDate, daysUntil } from "@/lib/format";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -46,9 +46,11 @@ export function TimelineView() {
 
   const event = events.find((e) => e.id === currentEventId);
   const eventMilestones = useMemo(
-    () => (event ? timelineForEvent(milestones, event.id) : []),
+    () => (event ? milestones.filter((milestone) => milestone.eventId === event.id) : []),
     [milestones, event]
   );
+
+  const eventTasks = event ? tasks.filter((task) => task.eventId === event.id) : [];
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<TimelineMilestone | null>(null);
@@ -58,7 +60,6 @@ export function TimelineView() {
     return <div className="text-center py-20 text-muted-foreground">No event selected.</div>;
   }
 
-  const eventTasks = tasksForEvent(tasks, event.id);
   const overdueTasks = eventTasks.filter(
     (t) => t.status !== "completed" && new Date(t.dueDate).getTime() < Date.now()
   );
@@ -176,8 +177,8 @@ export function TimelineView() {
                       item.completed
                         ? "border-primary bg-primary text-primary-foreground"
                         : item.kind === "task_overdue"
-                        ? "border-destructive bg-background"
-                        : "border-border bg-background hover:border-foreground/30"
+                          ? "border-destructive bg-background"
+                          : "border-border bg-background hover:border-foreground/30"
                     )}
                     style={
                       item.kind === "task_overdue" && !item.completed
@@ -243,10 +244,10 @@ export function TimelineView() {
                           {item.completed
                             ? "Completed"
                             : days < 0
-                            ? `${Math.abs(days)} days ago`
-                            : days === 0
-                            ? "Today"
-                            : `In ${days} days`}
+                              ? `${Math.abs(days)} days ago`
+                              : days === 0
+                                ? "Today"
+                                : `In ${days} days`}
                         </p>
                       </div>
                       {item.kind === "milestone" && (

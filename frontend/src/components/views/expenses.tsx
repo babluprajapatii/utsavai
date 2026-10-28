@@ -46,7 +46,6 @@ import { useAppStore } from "@/lib/store";
 import {
   BudgetCategory,
   categoryMeta,
-  expensesForEvent,
   Expense,
 } from "@/lib/mock-data";
 import { formatINR, formatDate } from "@/lib/format";
@@ -75,7 +74,7 @@ export function ExpensesView() {
 
   const eventExpenses = useMemo(() => {
     if (!event) return [];
-    let list = expensesForEvent(expenses, event.id);
+    let list = expenses.filter((expense) => expense.eventId === event.id);
     if (search) {
       list = list.filter((e) =>
         e.description.toLowerCase().includes(search.toLowerCase())
@@ -191,49 +190,155 @@ export function ExpensesView() {
         />
       ) : (
         <>
-        <Card className="p-0 overflow-hidden hidden md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Description</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead className="text-right">Planned</TableHead>
-                <TableHead className="text-right">Actual</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {eventExpenses.map((e) => {
-                const meta = categoryMeta[e.category as BudgetCategory] ?? categoryMeta.contingency;
-                const variance = e.actualAmount - e.plannedAmount;
-                return (
-                  <TableRow key={e.id}>
-                    <TableCell>
+          <Card className="p-0 overflow-hidden hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead className="text-right">Planned</TableHead>
+                  <TableHead className="text-right">Actual</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {eventExpenses.map((e) => {
+                  const meta = categoryMeta[e.category as BudgetCategory] ?? categoryMeta.contingency;
+                  const variance = e.actualAmount - e.plannedAmount;
+                  return (
+                    <TableRow key={e.id}>
+                      <TableCell>
+                        <p className="font-medium text-foreground">{e.description}</p>
+                        {e.notes && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{e.notes}</p>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className="text-xs"
+                          style={{ color: meta.color, borderColor: `${meta.color}40` }}
+                        >
+                          <span
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ backgroundColor: meta.color }}
+                            aria-hidden="true"
+                          />
+                          {meta.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">
+                        {formatINR(e.plannedAmount)}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums font-medium">
+                        {formatINR(e.actualAmount)}
+                        {variance !== 0 && (
+                          <p
+                            className="text-xs mt-0.5"
+                            style={{
+                              color: variance > 0 ? "oklch(0.55 0.18 25)" : "oklch(0.55 0.12 150)",
+                            }}
+                          >
+                            {variance > 0 ? "+" : ""}
+                            {formatINR(variance)}
+                          </p>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(e.date, "short")}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => openEdit(e)}
+                            aria-label={`Edit ${e.description}`}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:text-destructive"
+                            onClick={() => setDeleteId(e.id)}
+                            aria-label={`Delete ${e.description}`}
+                            style={{ color: "oklch(0.55 0.18 25)" }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Card>
+
+          {/* Mobile card layout */}
+          <div className="md:hidden space-y-3">
+            {eventExpenses.map((e) => {
+              const meta = categoryMeta[e.category as BudgetCategory] ?? categoryMeta.contingency;
+              const variance = e.actualAmount - e.plannedAmount;
+              return (
+                <Card key={e.id} className="p-4 gap-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
                       <p className="font-medium text-foreground">{e.description}</p>
                       {e.notes && (
                         <p className="text-xs text-muted-foreground mt-0.5">{e.notes}</p>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className="text-xs"
-                        style={{ color: meta.color, borderColor: `${meta.color}40` }}
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge
+                          variant="outline"
+                          className="text-xs"
+                          style={{ color: meta.color, borderColor: `${meta.color}40` }}
+                        >
+                          <span
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ backgroundColor: meta.color }}
+                            aria-hidden="true"
+                          />
+                          {meta.label}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(e.date, "short")}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => openEdit(e)}
+                        aria-label={`Edit ${e.description}`}
                       >
-                        <span
-                          className="h-1.5 w-1.5 rounded-full"
-                          style={{ backgroundColor: meta.color }}
-                          aria-hidden="true"
-                        />
-                        {meta.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums text-muted-foreground">
-                      {formatINR(e.plannedAmount)}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums font-medium">
-                      {formatINR(e.actualAmount)}
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setDeleteId(e.id)}
+                        aria-label={`Delete ${e.description}`}
+                        style={{ color: "oklch(0.55 0.18 25)" }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-border text-sm">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Planned</p>
+                      <p className="font-medium text-foreground tabular-nums">{formatINR(e.plannedAmount)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Actual</p>
+                      <p className="font-medium text-foreground tabular-nums">{formatINR(e.actualAmount)}</p>
                       {variance !== 0 && (
                         <p
                           className="text-xs mt-0.5"
@@ -245,118 +350,12 @@ export function ExpensesView() {
                           {formatINR(variance)}
                         </p>
                       )}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(e.date, "short")}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => openEdit(e)}
-                          aria-label={`Edit ${e.description}`}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:text-destructive"
-                          onClick={() => setDeleteId(e.id)}
-                          aria-label={`Delete ${e.description}`}
-                          style={{ color: "oklch(0.55 0.18 25)" }}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </Card>
-
-        {/* Mobile card layout */}
-        <div className="md:hidden space-y-3">
-          {eventExpenses.map((e) => {
-            const meta = categoryMeta[e.category as BudgetCategory] ?? categoryMeta.contingency;
-            const variance = e.actualAmount - e.plannedAmount;
-            return (
-              <Card key={e.id} className="p-4 gap-0">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-foreground">{e.description}</p>
-                    {e.notes && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{e.notes}</p>
-                    )}
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge
-                        variant="outline"
-                        className="text-xs"
-                        style={{ color: meta.color, borderColor: `${meta.color}40` }}
-                      >
-                        <span
-                          className="h-1.5 w-1.5 rounded-full"
-                          style={{ backgroundColor: meta.color }}
-                          aria-hidden="true"
-                        />
-                        {meta.label}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDate(e.date, "short")}
-                      </span>
                     </div>
                   </div>
-                  <div className="flex gap-1 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => openEdit(e)}
-                      aria-label={`Edit ${e.description}`}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => setDeleteId(e.id)}
-                      aria-label={`Delete ${e.description}`}
-                      style={{ color: "oklch(0.55 0.18 25)" }}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-border text-sm">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Planned</p>
-                    <p className="font-medium text-foreground tabular-nums">{formatINR(e.plannedAmount)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Actual</p>
-                    <p className="font-medium text-foreground tabular-nums">{formatINR(e.actualAmount)}</p>
-                    {variance !== 0 && (
-                      <p
-                        className="text-xs mt-0.5"
-                        style={{
-                          color: variance > 0 ? "oklch(0.55 0.18 25)" : "oklch(0.55 0.12 150)",
-                        }}
-                      >
-                        {variance > 0 ? "+" : ""}
-                        {formatINR(variance)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
+                </Card>
+              );
+            })}
+          </div>
         </>
       )}
 

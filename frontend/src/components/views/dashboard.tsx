@@ -19,19 +19,13 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAppStore } from "@/lib/store";
 import {
-  tasksForEvent,
-  vendorsForEvent,
-  guestsForEvent,
-  expensesForEvent,
-  eventTypeMeta,
-} from "@/lib/mock-data";
-import {
   formatINR,
   formatINRShort,
   formatDate,
   daysUntil,
   relativeTime,
 } from "@/lib/format";
+import { eventTypeMeta } from "@/lib/mock-data";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { StatTile } from "@/components/shared/stat-tile";
 import { ToneBadge } from "@/components/shared/status-pill";
@@ -59,10 +53,10 @@ export function DashboardView() {
     );
   }
 
-  const eventTasks = tasksForEvent(tasks, event.id);
-  const eventVendors = vendorsForEvent(vendors, event.id);
-  const eventGuests = guestsForEvent(guests, event.id);
-  const eventExpenses = expensesForEvent(expenses, event.id);
+  const eventTasks = tasks.filter((task) => task.eventId === event.id);
+  const eventVendors = vendors.filter((vendor) => vendor.eventId === event.id);
+  const eventGuests = guests.filter((guest) => guest.eventId === event.id);
+  const eventExpenses = expenses.filter((expense) => expense.eventId === event.id);
 
   const days = daysUntil(event.date);
   const completedTasks = eventTasks.filter((t) => t.status === "completed").length;

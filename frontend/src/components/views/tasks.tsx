@@ -59,7 +59,6 @@ import {
   TaskPriority,
   taskStatusMeta,
   priorityMeta,
-  tasksForEvent,
   BudgetCategory,
   categoryMeta,
 } from "@/lib/mock-data";
@@ -94,7 +93,7 @@ export function TasksView() {
 
   const eventTasks = useMemo(() => {
     if (!event) return [];
-    let list = tasksForEvent(tasks, event.id);
+    let list = tasks.filter((task) => task.eventId === event.id);
     if (search) {
       list = list.filter(
         (t) =>

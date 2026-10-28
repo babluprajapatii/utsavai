@@ -17,13 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/lib/store";
-import {
-  tasksForEvent,
-  vendorsForEvent,
-  guestsForEvent,
-  expensesForEvent,
-  eventTypeMeta,
-} from "@/lib/mock-data";
+import { eventTypeMeta } from "@/lib/mock-data";
 import { formatINR, formatINRShort, formatDate, daysUntil } from "@/lib/format";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -55,10 +49,10 @@ export function AiAssistantView() {
   const [error, setError] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const eventTasks = event ? tasksForEvent(tasks, event.id) : [];
-  const eventVendors = event ? vendorsForEvent(vendors, event.id) : [];
-  const eventGuests = event ? guestsForEvent(guests, event.id) : [];
-  const eventExpenses = event ? expensesForEvent(expenses, event.id) : [];
+  const eventTasks = event ? tasks.filter((task) => task.eventId === event.id) : [];
+  const eventVendors = event ? vendors.filter((vendor) => vendor.eventId === event.id) : [];
+  const eventGuests = event ? guests.filter((guest) => guest.eventId === event.id) : [];
+  const eventExpenses = event ? expenses.filter((expense) => expense.eventId === event.id) : [];
   const messages = event ? chatMessages[event.id] ?? [] : [];
 
   // Track "in-flight" messages to show typing indicator
