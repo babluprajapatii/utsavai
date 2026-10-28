@@ -40,15 +40,101 @@ export const vendorStatuses = [
 
 export const guestRsvpStatuses = ['Pending', 'Accepted', 'Declined'] as const;
 
+export function normalizeEventTypeInput(val: unknown): string {
+  if (typeof val !== 'string') return String(val ?? '');
+  const lower = val.trim().toLowerCase();
+  if (lower === 'wedding') return 'Wedding';
+  if (lower === 'birthday') return 'Birthday';
+  if (lower === 'community' || lower === 'community event') return 'Community Event';
+  if (lower === 'family' || lower === 'family celebration') return 'Family Celebration';
+  if (lower === 'custom' || lower === 'custom event') return 'Custom Event';
+  return val;
+}
+
+export function normalizeEventStatusInput(val: unknown): string {
+  if (typeof val !== 'string') return String(val ?? '');
+  const lower = val.trim().toLowerCase();
+  if (lower === 'planning') return 'Planning';
+  if (lower === 'active') return 'Active';
+  if (lower === 'completed') return 'Completed';
+  if (lower === 'cancelled') return 'Cancelled';
+  return val;
+}
+
+export function normalizeTaskPriorityInput(val: unknown): string {
+  if (typeof val !== 'string') return String(val ?? '');
+  const lower = val.trim().toLowerCase();
+  if (lower === 'low') return 'Low';
+  if (lower === 'medium') return 'Medium';
+  if (lower === 'high') return 'High';
+  if (lower === 'critical') return 'Critical';
+  return val;
+}
+
+export function normalizeTaskStatusInput(val: unknown): string {
+  if (typeof val !== 'string') return String(val ?? '');
+  const lower = val.trim().toLowerCase().replace(/[-_\s]+/g, ' ');
+  if (lower === 'not started') return 'Not Started';
+  if (lower === 'in progress') return 'In Progress';
+  if (lower === 'completed') return 'Completed';
+  return val;
+}
+
+export function normalizeMilestoneStatusInput(val: unknown): string {
+  if (typeof val !== 'string') return String(val ?? '');
+  const lower = val.trim().toLowerCase();
+  if (lower === 'pending') return 'Pending';
+  if (lower === 'completed') return 'Completed';
+  if (lower === 'overdue') return 'Overdue';
+  return val;
+}
+
+export function normalizeVendorCategoryInput(val: unknown): string {
+  if (typeof val !== 'string') return String(val ?? '');
+  const lower = val.trim().toLowerCase();
+  if (lower === 'venue') return 'Venue';
+  if (lower === 'catering' || lower === 'food') return 'Catering';
+  if (lower === 'photography') return 'Photography';
+  if (lower === 'decoration') return 'Decoration';
+  if (lower === 'music') return 'Music';
+  if (lower === 'transportation') return 'Transportation';
+  if (lower === 'security') return 'Security';
+  if (lower === 'entertainment') return 'Entertainment';
+  if (lower === 'other' || lower === 'contingency') return 'Other';
+  return val;
+}
+
+export function normalizeVendorStatusInput(val: unknown): string {
+  if (typeof val !== 'string') return String(val ?? '');
+  const lower = val.trim().toLowerCase();
+  if (lower === 'researching') return 'Researching';
+  if (lower === 'shortlisted') return 'Shortlisted';
+  if (lower === 'contacted') return 'Contacted';
+  if (lower === 'negotiating') return 'Negotiating';
+  if (lower === 'booked') return 'Booked';
+  if (lower === 'completed') return 'Completed';
+  if (lower === 'cancelled') return 'Cancelled';
+  return val;
+}
+
+export function normalizeGuestRsvpStatusInput(val: unknown): string {
+  if (typeof val !== 'string') return String(val ?? '');
+  const lower = val.trim().toLowerCase();
+  if (lower === 'pending') return 'Pending';
+  if (lower === 'accepted') return 'Accepted';
+  if (lower === 'declined') return 'Declined';
+  return val;
+}
+
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-const timeRegex = /^\d{2}:\d{2}(:\d{2})?$/;
+const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/;
 
 // ============================================================================
 // Events Schemas
 // ============================================================================
 export const createEventSchema = z.object({
   name: z.string().trim().min(1, 'Event name is required').max(200),
-  type: z.enum(eventTypes),
+  type: z.preprocess(normalizeEventTypeInput, z.enum(eventTypes)),
   event_date: z.string().regex(dateRegex, 'Event date must be in YYYY-MM-DD format'),
   start_time: z.string().regex(timeRegex, 'Start time must be HH:MM or HH:MM:SS').nullable().optional(),
   end_time: z.string().regex(timeRegex, 'End time must be HH:MM or HH:MM:SS').nullable().optional(),
@@ -60,7 +146,7 @@ export const createEventSchema = z.object({
 });
 
 export const updateEventSchema = createEventSchema.partial().extend({
-  status: z.enum(eventStatuses).optional(),
+  status: z.preprocess(normalizeEventStatusInput, z.enum(eventStatuses)).optional(),
 });
 
 // ============================================================================
@@ -105,8 +191,8 @@ export const createTaskSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(300),
   description: z.string().trim().max(1000).nullable().optional(),
   category: z.string().trim().max(100).nullable().optional(),
-  priority: z.enum(taskPriorities).default('Medium').optional(),
-  status: z.enum(taskStatuses).default('Not Started').optional(),
+  priority: z.preprocess(normalizeTaskPriorityInput, z.enum(taskPriorities)).default('Medium').optional(),
+  status: z.preprocess(normalizeTaskStatusInput, z.enum(taskStatuses)).default('Not Started').optional(),
   due_date: z.string().regex(dateRegex).nullable().optional(),
   assigned_to: z.string().trim().max(200).nullable().optional(),
   notes: z.string().trim().max(1000).nullable().optional(),
@@ -128,7 +214,7 @@ export const createMilestoneSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(300),
   milestone_date: z.string().regex(dateRegex, 'Milestone date must be YYYY-MM-DD'),
   description: z.string().trim().max(1000).nullable().optional(),
-  status: z.enum(milestoneStatuses).default('Pending').optional(),
+  status: z.preprocess(normalizeMilestoneStatusInput, z.enum(milestoneStatuses)).default('Pending').optional(),
 });
 
 export const updateMilestoneSchema = createMilestoneSchema.partial();
@@ -154,14 +240,14 @@ export const updateScheduleItemSchema = createScheduleItemSchema.partial();
 // ============================================================================
 export const createVendorSchema = z.object({
   name: z.string().trim().min(1, 'Vendor name is required').max(200),
-  category: z.enum(vendorCategories),
+  category: z.preprocess(normalizeVendorCategoryInput, z.enum(vendorCategories)),
   contact_name: z.string().trim().max(200).nullable().optional(),
   contact_phone: z.string().trim().max(50).nullable().optional(),
   contact_email: z.string().trim().email().max(255).nullable().optional(),
   website: z.string().trim().max(500).nullable().optional(),
   quoted_price: z.number().min(0).default(0).optional(),
   agreed_price: z.number().min(0).default(0).optional(),
-  status: z.enum(vendorStatuses).default('Researching').optional(),
+  status: z.preprocess(normalizeVendorStatusInput, z.enum(vendorStatuses)).default('Researching').optional(),
   booking_date: z.string().regex(dateRegex).nullable().optional(),
   notes: z.string().trim().max(1000).nullable().optional(),
 });
@@ -176,7 +262,7 @@ export const createGuestSchema = z.object({
   group_name: z.string().trim().max(100).nullable().optional(),
   email: z.string().trim().email().max(255).nullable().optional(),
   phone: z.string().trim().max(50).nullable().optional(),
-  rsvp_status: z.enum(guestRsvpStatuses).default('Pending').optional(),
+  rsvp_status: z.preprocess(normalizeGuestRsvpStatusInput, z.enum(guestRsvpStatuses)).default('Pending').optional(),
   plus_one: z.boolean().default(false).optional(),
   meal_preference: z.string().trim().max(100).nullable().optional(),
   special_requirements: z.string().trim().max(1000).nullable().optional(),

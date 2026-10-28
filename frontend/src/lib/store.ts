@@ -274,10 +274,77 @@ function toDisplayNotification(raw: any): AppNotification {
   };
 }
 
+function toApiEventType(type: EventType | string): string {
+  switch (String(type).toLowerCase()) {
+    case "wedding": return "Wedding";
+    case "birthday": return "Birthday";
+    case "community": case "community event": return "Community Event";
+    case "family": case "family celebration": return "Family Celebration";
+    case "custom": case "custom event": return "Custom Event";
+    default: return "Custom Event";
+  }
+}
+
+function toApiTaskStatus(status: TaskStatus | string): string {
+  switch (String(status).toLowerCase().replace(/[-_\s]+/g, " ")) {
+    case "not started": case "not_started": return "Not Started";
+    case "in progress": case "in_progress": return "In Progress";
+    case "completed": return "Completed";
+    default: return "Not Started";
+  }
+}
+
+function toApiTaskPriority(priority: Task["priority"] | string): string {
+  switch (String(priority).toLowerCase()) {
+    case "low": return "Low";
+    case "medium": return "Medium";
+    case "high": return "High";
+    case "critical": return "Critical";
+    default: return "Medium";
+  }
+}
+
+function toApiVendorCategory(cat: BudgetCategory | string): string {
+  switch (String(cat).toLowerCase()) {
+    case "venue": return "Venue";
+    case "food": case "catering": return "Catering";
+    case "photography": return "Photography";
+    case "decoration": return "Decoration";
+    case "entertainment": return "Entertainment";
+    case "music": return "Music";
+    case "transportation": return "Transportation";
+    case "security": return "Security";
+    case "other": case "contingency": return "Other";
+    default: return "Other";
+  }
+}
+
+function toApiVendorStatus(status: VendorStatus | string): string {
+  switch (String(status).toLowerCase()) {
+    case "researching": return "Researching";
+    case "shortlisted": return "Shortlisted";
+    case "contacted": return "Contacted";
+    case "negotiating": return "Negotiating";
+    case "booked": return "Booked";
+    case "completed": return "Completed";
+    case "cancelled": return "Cancelled";
+    default: return "Researching";
+  }
+}
+
+function toApiRsvp(rsvp: RsvpStatus | string): string {
+  switch (String(rsvp).toLowerCase()) {
+    case "accepted": return "Accepted";
+    case "declined": return "Declined";
+    case "pending":
+    default: return "Pending";
+  }
+}
+
 function eventPayloadFromForm(data: Omit<CelebrationEvent, "id" | "createdAt">) {
   return {
     name: data.name,
-    type: String(data.type).charAt(0).toUpperCase() + String(data.type).slice(1),
+    type: toApiEventType(data.type),
     event_date: data.date,
     start_time: data.startTime,
     end_time: data.endTime,
@@ -480,7 +547,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   updateEvent: (id, patch) => {
     const payload: Record<string, unknown> = {};
     if (patch.name !== undefined) payload.name = patch.name;
-    if (patch.type !== undefined) payload.type = String(patch.type).charAt(0).toUpperCase() + String(patch.type).slice(1);
+    if (patch.type !== undefined) payload.type = toApiEventType(patch.type);
     if (patch.date !== undefined) payload.event_date = patch.date;
     if (patch.startTime !== undefined) payload.start_time = patch.startTime;
     if (patch.endTime !== undefined) payload.end_time = patch.endTime;
@@ -525,8 +592,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         title: task.title,
         description: task.description ?? null,
         category: task.category,
-        priority: task.priority,
-        status: task.status,
+        priority: toApiTaskPriority(task.priority),
+        status: toApiTaskStatus(task.status),
         due_date: task.dueDate,
         assigned_to: task.owner ?? null,
         notes: task.description ?? null,
@@ -542,8 +609,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     const payload: Record<string, unknown> = {};
     if (patch.title !== undefined) payload.title = patch.title;
     if (patch.description !== undefined) payload.description = patch.description;
-    if (patch.status !== undefined) payload.status = patch.status;
-    if (patch.priority !== undefined) payload.priority = patch.priority;
+    if (patch.status !== undefined) payload.status = toApiTaskStatus(patch.status);
+    if (patch.priority !== undefined) payload.priority = toApiTaskPriority(patch.priority);
     if (patch.dueDate !== undefined) payload.due_date = patch.dueDate;
     if (patch.category !== undefined) payload.category = patch.category;
     if (patch.owner !== undefined) payload.assigned_to = patch.owner;
@@ -558,7 +625,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   setTaskStatus: (id, status) => {
     set((s) => ({ tasks: s.tasks.map((task) => (task.id === id ? { ...task, status } : task)) }));
-    void apiClient.tasks.update(id, { status }).catch(() => undefined);
+    void apiClient.tasks.update(id, { status: toApiTaskStatus(status) }).catch(() => undefined);
   },
   deleteTask: (id) =>
     void (async () => {
@@ -575,13 +642,13 @@ export const useAppStore = create<AppState>((set, get) => ({
     void (async () => {
       const response = await apiClient.vendors.create(vendor.eventId, {
         name: vendor.name,
-        category: vendor.category,
+        category: toApiVendorCategory(vendor.category),
         contact_name: vendor.contactName ?? null,
         contact_phone: vendor.phone ?? null,
         contact_email: vendor.email ?? null,
         quoted_price: vendor.estimatedCost,
         agreed_price: vendor.actualCost ?? 0,
-        status: vendor.status,
+        status: toApiVendorStatus(vendor.status),
         booking_date: vendor.bookingDate ?? null,
         notes: vendor.notes ?? null,
       });
@@ -594,13 +661,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   updateVendor: (id, patch) => {
     const payload: Record<string, unknown> = {};
     if (patch.name !== undefined) payload.name = patch.name;
-    if (patch.category !== undefined) payload.category = patch.category;
+    if (patch.category !== undefined) payload.category = toApiVendorCategory(patch.category);
     if (patch.contactName !== undefined) payload.contact_name = patch.contactName;
     if (patch.phone !== undefined) payload.contact_phone = patch.phone;
     if (patch.email !== undefined) payload.contact_email = patch.email;
     if (patch.estimatedCost !== undefined) payload.quoted_price = patch.estimatedCost;
     if (patch.actualCost !== undefined) payload.agreed_price = patch.actualCost;
-    if (patch.status !== undefined) payload.status = patch.status;
+    if (patch.status !== undefined) payload.status = toApiVendorStatus(patch.status);
     if (patch.bookingDate !== undefined) payload.booking_date = patch.bookingDate;
     if (patch.notes !== undefined) payload.notes = patch.notes;
     void (async () => {
@@ -613,7 +680,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   setVendorStatus: (id, status) => {
     set((s) => ({ vendors: s.vendors.map((vendor) => (vendor.id === id ? { ...vendor, status } : vendor)) }));
-    void apiClient.vendors.update(id, { status }).catch(() => undefined);
+    void apiClient.vendors.update(id, { status: toApiVendorStatus(status) }).catch(() => undefined);
   },
   deleteVendor: (id) =>
     void (async () => {
@@ -633,7 +700,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         group_name: guest.group ?? null,
         phone: guest.phone ?? null,
         email: guest.email ?? null,
-        rsvp_status: guest.rsvp,
+        rsvp_status: toApiRsvp(guest.rsvp),
         meal_preference: guest.mealPreference ?? null,
         special_requirements: guest.specialRequirements ?? null,
         notes: guest.notes ?? null,
@@ -651,7 +718,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (patch.group !== undefined) payload.group_name = patch.group;
     if (patch.phone !== undefined) payload.phone = patch.phone;
     if (patch.email !== undefined) payload.email = patch.email;
-    if (patch.rsvp !== undefined) payload.rsvp_status = patch.rsvp;
+    if (patch.rsvp !== undefined) payload.rsvp_status = toApiRsvp(patch.rsvp);
     if (patch.mealPreference !== undefined) payload.meal_preference = patch.mealPreference;
     if (patch.specialRequirements !== undefined) payload.special_requirements = patch.specialRequirements;
     if (patch.notes !== undefined) payload.notes = patch.notes;
@@ -666,7 +733,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   setRsvp: (id, rsvp) => {
     set((s) => ({ guests: s.guests.map((guest) => (guest.id === id ? { ...guest, rsvp } : guest)) }));
-    void apiClient.guests.update(id, { rsvp_status: rsvp }).catch(() => undefined);
+    void apiClient.guests.update(id, { rsvp_status: toApiRsvp(rsvp) }).catch(() => undefined);
   },
   deleteGuest: (id) =>
     void (async () => {

@@ -332,7 +332,7 @@ export function generateDeterministicPlan(context: EventContextSummary): Generat
     recommendations: [
       `Lock in the venue deposit immediately to safeguard the date against competing bookings.`,
       `Hold catering to approximately 30% of total expenditure to maintain a safe contingency reserve.`,
-      `Finalize high-impact priorities (${context.priorities.slice(0, 3).join(', ') || 'Venue, Catering'}) before non-essential items.`,
+      `Finalize high-impact priorities (${context.priorities?.slice(0, 3).join(', ') || 'Venue, Catering'}) before non-essential items.`,
     ],
     tasks,
     milestones,
