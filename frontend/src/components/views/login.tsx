@@ -1,7 +1,18 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { Eye, EyeOff, ArrowRight, Mail, Lock, AlertCircle } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Mail,
+  Lock,
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  Info,
+} from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +39,10 @@ export function LoginView() {
   const [remember, setRemember] = useState(true);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formNotice, setFormNotice] = useState<{
+    variant: "success" | "error" | "warning" | "info";
+    message: string;
+  } | null>(null);
 
   const validate = (): FieldErrors => {
     const e: FieldErrors = {};
@@ -47,7 +61,7 @@ export function LoginView() {
 
   const onSubmit = async (ev: FormEvent) => {
     ev.preventDefault();
-    setFormError(null);
+    setFormNotice(null);
     const e = validate();
     setErrors(e);
     if (Object.keys(e).length > 0) return;
@@ -56,40 +70,46 @@ export function LoginView() {
     try {
       const res = await signInUser(email, password);
       if (!res.success) {
-        setFormError(res.error || "Failed to sign in. Please verify your credentials.");
+        setFormNotice({ variant: "error", message: res.error || "Failed to sign in. Please verify your credentials." });
         setSubmitting(false);
         return;
       }
 
       const user = res.user;
+      if (!user || !user.id) {
+        setFormNotice({ variant: "error", message: "Authentication failed: No user session established." });
+        setSubmitting(false);
+        return;
+      }
+
       const fullName =
-        user?.user_metadata?.full_name ||
-        user?.email?.split("@")[0] ||
+        user.user_metadata?.full_name ||
+        user.email?.split("@")[0] ||
         email.split("@")[0] ||
         "User";
-      login(email, fullName, user?.id);
+      login(email, fullName, user.id);
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "An unexpected error occurred during login.";
-      setFormError(msg);
+      setFormNotice({ variant: "error", message: msg });
     } finally {
       setSubmitting(false);
     }
   };
 
   const onGoogleLogin = async () => {
-    setFormError(null);
+    setFormNotice(null);
     setSubmitting(true);
     try {
       const res = await signInWithGoogle();
       if (res.error) {
-        setFormError(res.error);
+        setFormNotice({ variant: "error", message: res.error });
         setSubmitting(false);
       }
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Google sign in failed.";
-      setFormError(msg);
+      setFormNotice({ variant: "error", message: msg });
       setSubmitting(false);
     }
   };
@@ -112,19 +132,19 @@ export function LoginView() {
           </div>
 
           <Card className="p-6 sm:p-8 gap-0">
-            {formError && (
-              <div
-                role="alert"
-                className="mb-4 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive"
-                style={{
-                  borderColor: "oklch(0.55 0.18 25 / 0.3)",
-                  backgroundColor: "oklch(0.55 0.18 25 / 0.05)",
-                  color: "oklch(0.50 0.18 25)",
-                }}
-              >
-                <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>{formError}</span>
-              </div>
+            {formNotice && (
+              <Alert variant={formNotice.variant} className="mb-4">
+                {formNotice.variant === "success" ? (
+                  <CheckCircle2 className="h-4 w-4" />
+                ) : formNotice.variant === "error" ? (
+                  <AlertCircle className="h-4 w-4" />
+                ) : formNotice.variant === "warning" ? (
+                  <AlertTriangle className="h-4 w-4" />
+                ) : (
+                  <Info className="h-4 w-4" />
+                )}
+                <AlertDescription>{formNotice.message}</AlertDescription>
+              </Alert>
             )}
 
             <form onSubmit={onSubmit} className="space-y-4" noValidate>
@@ -161,7 +181,7 @@ export function LoginView() {
                   <button
                     type="button"
                     className="text-xs text-primary hover:underline"
-                    onClick={() => setFormError("Password reset is not available in this demo. Any email and password will log you in.")}
+                    onClick={() => setFormNotice({ variant: "info", message: "Password reset functionality is not currently available. Please contact support if you need assistance." })}
                   >
                     Forgot password?
                   </button>
@@ -257,9 +277,6 @@ export function LoginView() {
             </p>
           </Card>
 
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            Demo login accepts any email and password.
-          </p>
         </div>
       </main>
       <PublicFooter />

@@ -20,25 +20,13 @@ export async function getAuthContext(): Promise<AuthContext | null> {
     } = await supabase.auth.getUser();
 
     if (error || !user) {
-      // In development environments with explicit dev mock user configured
-      if (process.env.NODE_ENV === 'development' && process.env.DEV_MOCK_USER_ID) {
-        return {
-          user: {
-            id: process.env.DEV_MOCK_USER_ID,
-            email: 'dev@utsavai.local',
-            app_metadata: {},
-            user_metadata: {},
-            aud: 'authenticated',
-            created_at: new Date().toISOString(),
-          } as User,
-          supabase,
-        };
-      }
       return null;
     }
 
     return { user, supabase };
-  } catch {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[getAuthContext] Failed to resolve authenticated user:', message);
     return null;
   }
 }

@@ -46,7 +46,7 @@ const sections = [
     id: "accounts",
     title: "5. Accounts and authentication",
     body: [
-      "In this demonstration, authentication accepts any email and password. No real account is created and no credentials are verified.",
+      "Authentication uses real Supabase Auth to verify user credentials securely. When you sign in, Supabase validates your email and password against its authentication service. New users can register and create accounts using Supabase's registration flow.",
       "In a production deployment, you would be responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account. You would agree to notify us of any unauthorized use of your account.",
     ],
   },

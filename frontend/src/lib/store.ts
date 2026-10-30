@@ -934,7 +934,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           isAuthed: false,
           authLoading: false,
           user: null,
-          route: { kind: "public", view: "home" },
+          route: { kind: "public", view: "login" },
           events: [],
           tasks: [],
           vendors: [],
@@ -949,20 +949,25 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
   },
 
-  login: (email, name, id) =>
+  login: (email, name, id) => {
+    if (!id) return;
     set({
       isAuthed: true,
       authLoading: false,
-      user: { id: id || uid("usr"), name: name || email.split("@")[0] || "User", email },
+      user: { id, name: name || email.split("@")[0] || "User", email },
       route: { kind: "app", view: "dashboard" },
-    }),
-  register: (name, email, id) =>
+    });
+    void get().loadEvents();
+  },
+  register: (name, email, id) => {
+    if (!id) return;
     set({
       isAuthed: true,
       authLoading: false,
-      user: { id: id || uid("usr"), name, email },
+      user: { id, name, email },
       route: { kind: "onboarding", view: "onboarding_welcome" },
-    }),
+    });
+  },
   logout: async () => {
     try {
       await signOutUser();
@@ -982,7 +987,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       schedule: [],
       notifications: [],
       currentEventId: null,
-      route: { kind: "public", view: "home" },
+      route: { kind: "public", view: "login" },
     });
   },
 }));

@@ -46,6 +46,13 @@ export default function Home() {
     }
   }, [authLoading, isAuthed, route.kind, navigate]);
 
+  // Redirect authenticated users from public home to dashboard
+  useEffect(() => {
+    if (!authLoading && isAuthed && route.kind === "public" && route.view === "home") {
+      navigate({ kind: "app", view: "dashboard" });
+    }
+  }, [authLoading, isAuthed, route.kind, route.view, navigate]);
+
   // Public views - always accessible immediately without waiting for auth session check
   if (route.kind === "public") {
     switch (route.view) {

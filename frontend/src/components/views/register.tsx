@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { Eye, EyeOff, ArrowRight, Mail, Lock, User, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Mail, Lock, User, AlertCircle, CheckCircle2, AlertTriangle, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import { Logo } from "@/components/shared/logo";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { signUpUser } from "@/lib/auth";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface FieldErrors {
   name?: string;
@@ -33,7 +34,10 @@ export function RegisterView() {
   const [terms, setTerms] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formNotice, setFormNotice] = useState<{
+    variant: "success" | "error" | "warning" | "info";
+    message: string;
+  } | null>(null);
 
   const validate = (): FieldErrors => {
     const e: FieldErrors = {};
@@ -51,7 +55,7 @@ export function RegisterView() {
 
   const onSubmit = async (ev: FormEvent) => {
     ev.preventDefault();
-    setFormError(null);
+    setFormNotice(null);
     const e = validate();
     setErrors(e);
     if (Object.keys(e).length > 0) return;
@@ -60,17 +64,33 @@ export function RegisterView() {
     try {
       const res = await signUpUser(email, password, name.trim());
       if (!res.success) {
-        setFormError(res.error || "Failed to create account. Please try again.");
+        setFormNotice({ variant: "error", message: res.error || "Failed to create account. Please try again." });
         setSubmitting(false);
         return;
       }
 
       const user = res.user;
-      register(name.trim(), email, user?.id);
+      if (!user || !user.id) {
+        setFormNotice({ variant: "error", message: "Failed to create account. No user was returned." });
+        setSubmitting(false);
+        return;
+      }
+
+      // If email confirmation is required by Supabase, session will be null
+      if (!res.session) {
+        setFormNotice({
+          variant: "success",
+          message: "Account created successfully! Please check your email to confirm your account before logging in.",
+        });
+        setSubmitting(false);
+        return;
+      }
+
+      register(name.trim(), email, user.id);
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "An unexpected error occurred during registration.";
-      setFormError(msg);
+      setFormNotice({ variant: "error", message: msg });
     } finally {
       setSubmitting(false);
     }
@@ -100,19 +120,19 @@ export function RegisterView() {
           </div>
 
           <Card className="p-6 sm:p-8 gap-0">
-            {formError && (
-              <div
-                role="alert"
-                className="mb-4 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive"
-                style={{
-                  borderColor: "oklch(0.55 0.18 25 / 0.3)",
-                  backgroundColor: "oklch(0.55 0.18 25 / 0.05)",
-                  color: "oklch(0.50 0.18 25)",
-                }}
-              >
-                <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>{formError}</span>
-              </div>
+            {formNotice && (
+              <Alert variant={formNotice.variant} className="mb-4">
+                {formNotice.variant === "success" ? (
+                  <CheckCircle2 className="h-4 w-4" />
+                ) : formNotice.variant === "error" ? (
+                  <AlertCircle className="h-4 w-4" />
+                ) : formNotice.variant === "warning" ? (
+                  <AlertTriangle className="h-4 w-4" />
+                ) : (
+                  <Info className="h-4 w-4" />
+                )}
+                <AlertDescription>{formNotice.message}</AlertDescription>
+              </Alert>
             )}
 
             <form onSubmit={onSubmit} className="space-y-4" noValidate>
@@ -260,6 +280,8 @@ export function RegisterView() {
                       if (errors.terms) setErrors((p) => ({ ...p, terms: undefined }));
                     }}
                     className="mt-0.5"
+                    aria-invalid={!!errors.terms}
+                    aria-describedby={errors.terms ? "terms-error" : undefined}
                   />
                   <Label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
                     I agree to the{" "}
@@ -281,7 +303,7 @@ export function RegisterView() {
                   </Label>
                 </div>
                 {errors.terms && (
-                  <p className="text-xs text-destructive" style={{ color: "oklch(0.55 0.18 25)" }}>
+                  <p id="terms-error" className="text-xs text-destructive" style={{ color: "oklch(0.55 0.18 25)" }}>
                     {errors.terms}
                   </p>
                 )}
@@ -314,9 +336,6 @@ export function RegisterView() {
             </p>
           </Card>
 
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            Demo registration accepts any inputs that pass validation.
-          </p>
         </div>
       </main>
       <PublicFooter />

@@ -12,14 +12,47 @@ export interface AuthResult {
  * Checks whether Supabase credentials are configured and non-placeholder.
  */
 export function isSupabaseConfigured(): boolean {
+  return getSupabaseConfigError() === null;
+}
+
+/**
+ * Returns a specific, actionable configuration error message if Supabase credentials
+ * are missing, placeholder, or invalid. Returns null if properly configured.
+ */
+export function getSupabaseConfigError(): string | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  return Boolean(
-    url &&
-      key &&
-      !url.includes('placeholder-project') &&
-      key !== 'placeholder-anon-key'
-  );
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_KEY;
+
+  const missing: string[] = [];
+  if (!url || url.includes('placeholder-project') || url.includes('your-project-ref')) {
+    missing.push('NEXT_PUBLIC_SUPABASE_URL');
+  }
+  if (
+    !key ||
+    key === 'placeholder-anon-key' ||
+    key === 'your-supabase-anon-key' ||
+    key.length < 20
+  ) {
+    missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
+
+  if (missing.length > 0) {
+    return `Authentication service is not configured. Missing or placeholder environment variable(s): ${missing.join(', ')}. Please configure valid credentials in .env.local or Vercel project settings.`;
+  }
+
+  try {
+    const parsed = new URL(url!);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return 'Authentication service is not configured: NEXT_PUBLIC_SUPABASE_URL must be a valid http(s) URL.';
+    }
+  } catch {
+    return 'Authentication service is not configured: NEXT_PUBLIC_SUPABASE_URL is not a valid URL format.';
+  }
+
+  return null;
 }
 
 /**
@@ -32,46 +65,45 @@ export async function signUpUser(
   password: string,
   fullName: string
 ): Promise<AuthResult> {
-  // If running in development with unconfigured placeholder credentials,
-  // allow demo signup so frontend workflow can be tested without breaking
-  if (!isSupabaseConfigured()) {
-    if (process.env.NODE_ENV === 'development') {
-      const mockUser: User = {
-        id: 'usr_' + Math.random().toString(36).substring(2, 9),
-        email,
-        app_metadata: {},
-        user_metadata: { full_name: fullName.trim() },
-        aud: 'authenticated',
-        created_at: new Date().toISOString(),
-      } as User;
+  const normalizedEmail = email?.trim() || '';
+  const trimmedName = fullName?.trim() || '';
 
-      return {
-        success: true,
-        user: mockUser,
-        session: null,
-      };
-    }
+  if (!trimmedName || !normalizedEmail || !password) {
     return {
       success: false,
-      error:
-        'Supabase is not configured with live credentials. Please configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.',
+      error: 'Full name, email, and password are required.',
+    };
+  }
+
+  const configError = getSupabaseConfigError();
+  if (configError) {
+    return {
+      success: false,
+      error: configError,
     };
   }
 
   try {
     const supabase = createClient();
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: normalizedEmail,
       password,
       options: {
         data: {
-          full_name: fullName.trim(),
+          full_name: trimmedName,
         },
       },
     });
 
     if (error) {
       return { success: false, error: formatAuthError(error) };
+    }
+
+    if (!data.user) {
+      return {
+        success: false,
+        error: 'Registration failed. No user was returned by authentication service.',
+      };
     }
 
     return {
@@ -81,7 +113,7 @@ export async function signUpUser(
     };
   } catch (err: unknown) {
     const errorMsg =
-      err instanceof Error ? err.message : 'An unexpected error occurred.';
+      err instanceof Error ? err.message : 'An unexpected error occurred during registration.';
     return {
       success: false,
       error: errorMsg,
@@ -97,41 +129,38 @@ export async function signInUser(
   email: string,
   password: string
 ): Promise<AuthResult> {
-  // If running in development with unconfigured placeholder credentials,
-  // allow demo sign-in so frontend workflow can be tested without breaking
-  if (!isSupabaseConfigured()) {
-    if (process.env.NODE_ENV === 'development') {
-      const mockUser: User = {
-        id: 'usr_dev_' + Math.random().toString(36).substring(2, 9),
-        email,
-        app_metadata: {},
-        user_metadata: { full_name: email.split('@')[0] || 'User' },
-        aud: 'authenticated',
-        created_at: new Date().toISOString(),
-      } as User;
-
-      return {
-        success: true,
-        user: mockUser,
-        session: null,
-      };
-    }
+  const normalizedEmail = email?.trim() || '';
+  if (!normalizedEmail || !password) {
     return {
       success: false,
-      error:
-        'Supabase is not configured with live credentials. Please configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.',
+      error: 'Please enter both email and password.',
+    };
+  }
+
+  const configError = getSupabaseConfigError();
+  if (configError) {
+    return {
+      success: false,
+      error: configError,
     };
   }
 
   try {
     const supabase = createClient();
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: normalizedEmail,
       password,
     });
 
     if (error) {
       return { success: false, error: formatAuthError(error) };
+    }
+
+    if (!data.user || !data.session) {
+      return {
+        success: false,
+        error: 'Authentication failed. No active session established.',
+      };
     }
 
     return {
@@ -141,7 +170,7 @@ export async function signInUser(
     };
   } catch (err: unknown) {
     const errorMsg =
-      err instanceof Error ? err.message : 'An unexpected error occurred.';
+      err instanceof Error ? err.message : 'An unexpected error occurred during sign in.';
     return {
       success: false,
       error: errorMsg,
@@ -153,10 +182,10 @@ export async function signInUser(
  * Sign in using Google OAuth via Supabase Auth.
  */
 export async function signInWithGoogle(): Promise<{ error?: string }> {
-  if (!isSupabaseConfigured()) {
+  const configError = getSupabaseConfigError();
+  if (configError) {
     return {
-      error:
-        'Google OAuth requires configured Supabase credentials. Update NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.',
+      error: configError,
     };
   }
 

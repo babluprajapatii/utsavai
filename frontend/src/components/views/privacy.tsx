@@ -22,7 +22,7 @@ const sections = [
     body: [
       "While using this demonstration, the only inputs you may enter are: a name and email on the registration form, an email on the login form, and any free-text content you type into onboarding forms, event details, tasks, vendors, guests, expenses, schedule items, or AI assistant prompts.",
       "All of this input is held only in your browser's local memory for the duration of your session. It is not transmitted to any server, not stored in any database, and not shared with any third party. When you close or refresh the browser tab, all session data is lost.",
-      "Authentication in this demonstration accepts any email and password. No real credential verification takes place.",
+      "Authentication uses real Supabase Auth to verify user credentials securely. When you sign in or register, Supabase validates credentials against its authentication service and creates authenticated sessions.",
     ],
   },
   {
@@ -47,7 +47,7 @@ const sections = [
     title: "5. Third-party services",
     body: [
       "This demonstration does not integrate with any third-party analytics, advertising, or tracking services.",
-      "The login page includes a 'Continue with Google' option for visual completeness. In this demonstration, clicking it signs you in with a placeholder local account. No request is made to Google.",
+      "The login page includes a 'Continue with Google' option. Clicking it initiates Google OAuth via Supabase Auth, which redirects you to Google's authentication service for real identity verification.",
     ],
   },
   {

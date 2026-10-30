@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
       .range(offset, offset + limit - 1);
 
     if (error) {
+      console.error('[events API] Error fetching events:', error);
       return serverError('Failed to fetch events from database.', error.message);
     }
 
@@ -43,6 +44,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[events API] Unexpected error:', err);
     return serverError('Unexpected server error while listing events.', message);
   }
 }

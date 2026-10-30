@@ -96,6 +96,7 @@ export function conflict(message = 'Resource conflict.') {
 }
 
 export function serverError(message = 'An unexpected server error occurred.', details?: unknown) {
+  console.error('[serverError]', message, details ?? '');
   return apiError(ErrorCodes.INTERNAL_ERROR, message, 500, details);
 }
 
