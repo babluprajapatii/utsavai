@@ -3,8 +3,9 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { getSiteUrl, SITE_CONFIG } from "@/lib/site-config";
 
-const SITE_URL = "https://utsavai.app";
+const SITE_URL = getSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s - UtsavAI",
   },
   description:
-    "UtsavAI is an event and celebration planning platform. Manage budget, tasks, timeline, vendors, and guests for weddings, birthdays, community events, and family celebrations.",
+    "UtsavAI is an intelligent event and celebration planning platform. Manage budgets, tasks, timelines, vendors, and guests for weddings, birthdays, community events, and family celebrations.",
   keywords: [
     "UtsavAI",
     "event planning",
@@ -21,9 +22,27 @@ export const metadata: Metadata = {
     "wedding planner",
     "birthday planner",
     "AI event planning",
+    "budget manager",
+    "vendor management",
   ],
   authors: [{ name: "UtsavAI" }],
+  creator: "UtsavAI",
+  publisher: "UtsavAI",
   applicationName: "UtsavAI",
+  alternates: {
+    canonical: SITE_URL,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -38,7 +57,8 @@ export const metadata: Metadata = {
     description:
       "Plan weddings, birthdays, community events, and family celebrations in one organized workspace. Budget, tasks, timeline, vendors, guests, and AI recommendations.",
     url: SITE_URL,
-    siteName: "UtsavAI",
+    siteName: SITE_CONFIG.name,
+    locale: SITE_CONFIG.locale,
     type: "website",
     images: [
       {
@@ -55,6 +75,7 @@ export const metadata: Metadata = {
     description:
       "Plan weddings, birthdays, community events, and family celebrations in one organized workspace.",
     images: ["/brand/og-image.png"],
+    creator: "@utsavai",
   },
 };
 
@@ -63,6 +84,8 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "#faf8f3" },
     { media: "(prefers-color-scheme: dark)", color: "#1c1814" },
   ],
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -75,11 +98,6 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="antialiased bg-background text-foreground font-sans">
         <ThemeProvider>
