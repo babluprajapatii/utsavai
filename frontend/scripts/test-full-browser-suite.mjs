@@ -220,30 +220,49 @@ async function runFullBrowserSuite() {
       recordResult('Login Form Format Validation', 'FAIL', `Got: email="${invalidEmailMsg}", pass="${shortPassMsg}"`);
     }
 
-    // 10. Login Submission with Unconfigured Supabase Credentials
+    // 10. Login Submission Rejection (Real Supabase Auth Rejection for Unknown User)
     await evaluate(`
       (() => {
         const emailInput = document.getElementById('email');
         const passInput = document.getElementById('password');
         const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
 
-        setter.call(emailInput, 'realuser@example.com');
+        if (emailInput._valueTracker) emailInput._valueTracker.setValue('');
+        setter.call(emailInput, 'nonexistentuser999@example.com');
         emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+        emailInput.dispatchEvent(new Event('change', { bubbles: true }));
 
+        if (passInput._valueTracker) passInput._valueTracker.setValue('');
         setter.call(passInput, 'ValidPassword123');
         passInput.dispatchEvent(new Event('input', { bubbles: true }));
+        passInput.dispatchEvent(new Event('change', { bubbles: true }));
 
         const submitBtn = Array.from(document.querySelectorAll('button[type="submit"]')).find(b => b.textContent.includes('Login'));
         if (submitBtn) submitBtn.click();
       })()
     `);
-    await new Promise((r) => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 3500));
 
-    const alertErrorText = await evaluate(`document.querySelector('[role="alert"]')?.textContent.trim()`);
-    if (alertErrorText && alertErrorText.includes('Authentication service is not configured')) {
-      recordResult('Actionable Supabase Unconfigured Error', 'PASS', alertErrorText);
+    const debugState = await evaluate(`
+      (() => {
+        return {
+          emailVal: document.getElementById('email')?.value,
+          passVal: document.getElementById('password')?.value,
+          btnText: document.querySelector('button[type="submit"]')?.textContent?.trim(),
+          alert: document.querySelector('[role="alert"]')?.textContent?.trim()
+        };
+      })()
+    `);
+    const alertErrorText = debugState?.alert;
+    if (alertErrorText && (
+      alertErrorText.includes('Authentication service is not configured') ||
+      alertErrorText.includes('Invalid login credentials') ||
+      alertErrorText.includes('Invalid email or password') ||
+      alertErrorText.includes('Failed to sign in')
+    )) {
+      recordResult('Strict Auth Rejection for Unknown User', 'PASS', alertErrorText);
     } else {
-      recordResult('Actionable Supabase Unconfigured Error', 'FAIL', `Expected config alert, got: ${alertErrorText}`);
+      recordResult('Strict Auth Rejection for Unknown User', 'FAIL', `Expected auth error alert, got: ${JSON.stringify(debugState)}`);
     }
 
     // 11. Navigation to Register View

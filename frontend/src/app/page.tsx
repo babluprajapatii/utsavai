@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useAppStore } from "@/lib/store";
 import { AppShell } from "@/components/app/app-shell";
 import { HomeView } from "@/components/views/home";
@@ -11,21 +12,28 @@ import { LoginView } from "@/components/views/login";
 import { RegisterView } from "@/components/views/register";
 import { PrivacyView } from "@/components/views/privacy";
 import { TermsView } from "@/components/views/terms";
-import { OnboardingFlow } from "@/components/onboarding/onboarding-flow";
-import { DashboardView } from "@/components/views/dashboard";
-import { EventOverviewView } from "@/components/views/event-overview";
-import { CreateEditEventView } from "@/components/views/create-edit-event";
-import { BudgetView } from "@/components/views/budget";
-import { ExpensesView } from "@/components/views/expenses";
-import { TasksView } from "@/components/views/tasks";
-import { TimelineView } from "@/components/views/timeline";
-import { VendorsView } from "@/components/views/vendors";
-import { GuestsView } from "@/components/views/guests";
-import { EventDayView } from "@/components/views/event-day";
-import { AiAssistantView } from "@/components/views/ai-assistant";
-import { NotificationsView } from "@/components/views/notifications";
-import { SettingsView } from "@/components/views/settings";
-import { ExportView } from "@/components/views/export";
+
+const ViewLoading = () => (
+  <div className="flex items-center justify-center min-h-[300px]">
+    <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+  </div>
+);
+
+const OnboardingFlow = dynamic(() => import("@/components/onboarding/onboarding-flow").then((m) => m.OnboardingFlow), { loading: ViewLoading });
+const DashboardView = dynamic(() => import("@/components/views/dashboard").then((m) => m.DashboardView), { loading: ViewLoading });
+const EventOverviewView = dynamic(() => import("@/components/views/event-overview").then((m) => m.EventOverviewView), { loading: ViewLoading });
+const CreateEditEventView = dynamic(() => import("@/components/views/create-edit-event").then((m) => m.CreateEditEventView), { loading: ViewLoading });
+const BudgetView = dynamic(() => import("@/components/views/budget").then((m) => m.BudgetView), { loading: ViewLoading });
+const ExpensesView = dynamic(() => import("@/components/views/expenses").then((m) => m.ExpensesView), { loading: ViewLoading });
+const TasksView = dynamic(() => import("@/components/views/tasks").then((m) => m.TasksView), { loading: ViewLoading });
+const TimelineView = dynamic(() => import("@/components/views/timeline").then((m) => m.TimelineView), { loading: ViewLoading });
+const VendorsView = dynamic(() => import("@/components/views/vendors").then((m) => m.VendorsView), { loading: ViewLoading });
+const GuestsView = dynamic(() => import("@/components/views/guests").then((m) => m.GuestsView), { loading: ViewLoading });
+const EventDayView = dynamic(() => import("@/components/views/event-day").then((m) => m.EventDayView), { loading: ViewLoading });
+const AiAssistantView = dynamic(() => import("@/components/views/ai-assistant").then((m) => m.AiAssistantView), { loading: ViewLoading });
+const NotificationsView = dynamic(() => import("@/components/views/notifications").then((m) => m.NotificationsView), { loading: ViewLoading });
+const SettingsView = dynamic(() => import("@/components/views/settings").then((m) => m.SettingsView), { loading: ViewLoading });
+const ExportView = dynamic(() => import("@/components/views/export").then((m) => m.ExportView), { loading: ViewLoading });
 
 export default function Home() {
   const route = useAppStore((s) => s.route);
