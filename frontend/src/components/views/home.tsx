@@ -107,7 +107,7 @@ const features = [
     icon: FileDown,
     title: "Export",
     description:
-      "Export your plan as PDF or calendar file. Event summary, budget, tasks, timeline, vendors, guests, schedule.",
+      "Preview your complete plan in one place: event summary, budget breakdown, tasks, timeline, vendors, guests, and schedule.",
   },
 ];
 
@@ -153,7 +153,7 @@ const faqs = [
   },
   {
     q: "Can I export my plan?",
-    a: "Yes. You can export your event summary, budget, tasks, timeline, vendors, guests, and event-day schedule as a PDF or calendar file.",
+    a: "You can preview your complete event plan — including event summary, budget breakdown, tasks, timeline milestones, vendors, guests, and event-day schedule — in the Export view. Direct file export (PDF and calendar file) is planned for the production release.",
   },
   {
     q: "Does it work on mobile?",
@@ -257,12 +257,12 @@ export function HomeView() {
                 Every celebration, one workspace
               </p>
               <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground font-display">
-                Built for any kind of event
+                Celebration &amp; Event Planning for Every Occasion
               </h2>
               <p className="text-base text-muted-foreground leading-relaxed">
-                The same interface adapts to weddings, birthdays, community
-                gatherings, family occasions, and anything else worth
-                celebrating.
+                Whether you are coordinating a multi-day traditional wedding, organizing a milestone birthday party,
+                managing a community gathering, or hosting a family anniversary, UtsavAI adapts budget breakdowns,
+                tasks, vendor checklists, and guest tracking to your specific celebration.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -302,11 +302,11 @@ export function HomeView() {
                 Actual capabilities
               </p>
               <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground font-display">
-                Everything you need to plan, in one place
+                Budget, tasks, vendors, and guests in one place
               </h2>
               <p className="text-base text-muted-foreground leading-relaxed">
-                Each feature is built to do real work, not to look impressive on
-                a marketing page.
+                Integrated tools designed for celebration organizers. Track expenses in INR, coordinate
+                vendors, manage tasks and deadlines, track guest RSVPs, and follow an hour-by-hour schedule on the day itself.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -324,6 +324,17 @@ export function HomeView() {
                 </Card>
               ))}
             </div>
+            <div className="mt-8 text-center">
+              <button
+                type="button"
+                onClick={() => navigate({ kind: "public", view: "features" })}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline cursor-pointer"
+                aria-label="Explore all features and workflows"
+              >
+                Explore all features and workflows
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
           </div>
         </section>
 
@@ -335,10 +346,10 @@ export function HomeView() {
                 A simple workflow
               </p>
               <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground font-display">
-                How it works
+                How UtsavAI works: from idea to event day
               </h2>
               <p className="text-base text-muted-foreground leading-relaxed">
-                Four steps from a blank canvas to a managed plan.
+                Four clear steps from initial celebration concept to a fully coordinated event plan.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 relative">
@@ -379,25 +390,24 @@ export function HomeView() {
                   AI planning assistant
                 </div>
                 <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground font-display">
-                  Ask anything. Get event-aware answers.
+                  An AI planning assistant that knows your event
                 </h2>
                 <p className="text-base text-muted-foreground leading-relaxed">
-                  The assistant knows which event is selected, your tasks,
-                  budget, and timeline. Ask what to prioritize, what is overdue,
-                  or how to reduce your budget.
+                  The assistant understands your specific celebration context — tasks, deadlines, budget limits,
+                  and vendor status. Ask what to prioritize, explore budget trade-offs, or review overdue items.
                 </p>
                 <ul className="space-y-2 text-sm text-foreground/80">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "oklch(0.55 0.12 150)" }} />
-                    <span>Event context included in every answer.</span>
+                    <span>Real-time event context included in every answer.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "oklch(0.55 0.12 150)" }} />
-                    <span>Suggested prompts to get you started.</span>
+                    <span>Actionable prompts for weddings, birthdays, and community festivals.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "oklch(0.55 0.12 150)" }} />
-                    <span>Clearly marked AI-generated responses.</span>
+                    <span>Transparent, clearly marked AI-generated recommendations.</span>
                   </li>
                 </ul>
                 <Button
@@ -425,7 +435,7 @@ export function HomeView() {
                 </span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground font-display">
-                Questions, answered
+                Common questions about planning with UtsavAI
               </h2>
             </div>
             <Accordion type="single" collapsible className="space-y-3">
@@ -444,6 +454,17 @@ export function HomeView() {
                 </AccordionItem>
               ))}
             </Accordion>
+            <div className="mt-8 text-center">
+              <button
+                type="button"
+                onClick={() => navigate({ kind: "public", view: "faq" })}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline cursor-pointer"
+                aria-label="View all frequently asked questions"
+              >
+                Have more questions? Browse all FAQs
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
           </div>
         </section>
 

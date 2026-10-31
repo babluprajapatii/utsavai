@@ -71,6 +71,22 @@ export function PublicFooter() {
               Weddings, birthdays, community events, family celebrations, and
               custom occasions.
             </p>
+            <div className="pt-1 flex flex-col gap-1.5 text-xs text-muted-foreground">
+              <button
+                type="button"
+                onClick={() => navigate({ kind: "public", view: "features" })}
+                className="text-left hover:text-foreground transition-colors cursor-pointer"
+              >
+                Budget, Tasks &amp; Vendor Tools →
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate({ kind: "public", view: "faq" })}
+                className="text-left hover:text-foreground transition-colors cursor-pointer"
+              >
+                Celebration Planning FAQs →
+              </button>
+            </div>
           </div>
         </div>
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">

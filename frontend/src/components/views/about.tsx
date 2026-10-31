@@ -59,13 +59,13 @@ export function AboutView() {
               About UtsavAI
             </p>
             <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight font-display text-foreground leading-tight">
-              A planning workspace for every celebration.
+              A Calm, Connected Planning Workspace for Every Celebration
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              UtsavAI is built on a simple idea: planning a celebration should
-              feel organized, not overwhelming. Whether it is a 200-person
-              wedding or a 12-person birthday, the same workspace brings budget,
-              tasks, timeline, vendors, guests, and AI recommendations together.
+              UtsavAI is built on a clear principle: planning a celebration should feel organized, transparent, and calm.
+              Instead of juggling scattered spreadsheets, chaotic messaging groups, and lost vendor quotes, UtsavAI brings
+              event budgets in INR, task deadlines, milestone timelines, vendor tracking, guest RSVPs, and AI-assisted
+              recommendations into one unified workspace.
             </p>
           </div>
         </section>

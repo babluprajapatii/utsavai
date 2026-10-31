@@ -48,6 +48,27 @@ const faqs = [
     ],
   },
   {
+    category: "Planning workflows & features",
+    items: [
+      {
+        q: "How does event budget tracking and contingency work?",
+        a: "UtsavAI lets you set an overall target budget and distribute planned amounts across essential categories: venue, food/catering, decoration, photography, entertainment, transportation, and contingency. It compares planned vs. actual expenses and includes a dedicated contingency line to absorb unexpected expenses and price variations.",
+      },
+      {
+        q: "How does task management help prevent planning delays?",
+        a: "Tasks in UtsavAI are organized with priorities (Low, Medium, High, Critical), ownership assignment, and due dates. Urgent and overdue tasks are highlighted in your dashboard and planning timeline to ensure essential milestones are finished first.",
+      },
+      {
+        q: "What is the difference between the Planning Timeline and the Event-Day Schedule?",
+        a: "The Planning Timeline tracks major milestones across weeks or months leading up to the celebration. The Event-Day Schedule is an hour-by-hour, mobile-optimized operational run sheet designed for coordinators and family leads on the day of the event.",
+      },
+      {
+        q: "How does guest management handle RSVPs and meal preferences?",
+        a: "You can track real-time response statuses (Attending, Declined, Pending), plus-ones, family groups, and dietary preferences (vegetarian, non-vegetarian, or special needs) for accurate catering calculations.",
+      },
+    ],
+  },
+  {
     category: "Pricing and data",
     items: [
       {
@@ -102,8 +123,7 @@ export function FaqView() {
               Frequently asked questions
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Quick answers to common questions about UtsavAI. If something is
-              unclear, the in-app assistant can usually help.
+              Clear answers to common questions about celebration budgeting, tasks, vendors, guest lists, and our event-aware AI assistant.
             </p>
           </div>
         </section>
@@ -139,14 +159,26 @@ export function FaqView() {
         <section className="py-12 border-t border-border bg-secondary/30">
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center space-y-4">
             <h2 className="text-2xl font-semibold tracking-tight font-display text-foreground">
-              Ready to plan your celebration?
+              Ready to organize your celebration with UtsavAI?
             </h2>
-            <Button
-              size="lg"
-              onClick={() => navigate({ kind: "public", view: "register" })}
-            >
-              Start Planning
-            </Button>
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
+              Start with an AI-generated starter plan or build from scratch. Manage budget, tasks, timeline, vendors, and guests in one place.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <Button
+                size="lg"
+                onClick={() => navigate({ kind: "public", view: "register" })}
+              >
+                Start Planning Free
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate({ kind: "public", view: "features" })}
+              >
+                Explore Features &amp; Workflows
+              </Button>
+            </div>
           </div>
         </section>
       </main>

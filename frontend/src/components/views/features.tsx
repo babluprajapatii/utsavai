@@ -24,111 +24,121 @@ const features = [
   {
     icon: Sparkles,
     title: "Smart Event Planning",
-    summary: "Generate a complete plan from your event details.",
+    summary:
+      "Generate a comprehensive starter plan tailored to your event type, guest count, and budget. UtsavAI creates structured task checklists, milestone schedules, and suggested expense distributions that you can review, edit, or regenerate section by section.",
     points: [
-      "AI drafts tasks, timeline, and budget suggestions",
-      "Review, edit, and accept pieces independently",
-      "Regenerate sections without losing your changes",
-      "Clear visual progress while the plan builds",
+      "AI drafts tasks, timeline milestones, and budget allocations",
+      "Review, edit, and accept plan sections independently",
+      "Regenerate specific sections without losing custom edits",
+      "Deterministic fallback ensures complete plans even offline",
     ],
   },
   {
     icon: IndianRupee,
-    title: "Budget Management",
-    summary: "Total budget, planned, spent, and remaining at a glance.",
+    title: "Event Budget Management",
+    summary:
+      "Maintain full financial control with transparent category breakdowns. Set total target budgets, allocate planned amounts for venue, catering, decor, photography, and entertainment, record actual expenditures, and preserve a dedicated contingency buffer.",
     points: [
-      "Category breakdown with charts that aid understanding",
-      "Planned versus actual spending per category",
-      "Contingency line kept separate and visible",
-      "INR currency with Indian number formatting",
+      "Interactive category breakdown charts with planned vs. actual spending",
+      "Automated budget alerts when spending approaches category limits",
+      "Dedicated contingency line kept separate and visible to protect against surprise costs",
+      "Native INR currency formatting tailored for Indian celebration scales",
     ],
   },
   {
     icon: ListChecks,
-    title: "Task Management",
-    summary: "Status, priority, owner, due date, dependencies.",
+    title: "Task Management & Priorities",
+    summary:
+      "Organize your celebration checklist with priority levels, ownership assignment, due dates, and status updates so every planning detail is completed on schedule.",
     points: [
-      "Three statuses: Not Started, In Progress, Completed",
-      "Four priorities: Low, Medium, High, Critical",
-      "Dependencies and overdue highlighting",
-      "Quick status changes from the list",
+      "Three statuses: Not Started, In Progress, and Completed",
+      "Four priority tiers: Low, Medium, High, and Critical",
+      "Ownership assignment and clear due dates for every task",
+      "Automated overdue highlighting to keep celebration milestones on track",
     ],
   },
   {
     icon: CalendarDays,
-    title: "Planning Timeline",
-    summary: "Milestones from today to event day, visually distinct.",
+    title: "Planning Milestones & Timeline",
+    summary:
+      "Visualize your celebration journey from initial kickoff to event eve. Track key deadlines, payment milestones, and task deliverables on a clear chronological progression that remains distinct from the day-of operational schedule.",
     points: [
-      "Separate from event-day schedule",
-      "Completion tracking per milestone",
-      "Overdue tasks surfaced clearly",
-      "Visual progression, not a Gantt chart",
+      "Chronological milestone progression distinct from event-day run sheet",
+      "Completion percentage and status indicators per milestone",
+      "Surfaces critical path delays before they impact the celebration",
+      "Designed for clarity without overwhelming Gantt chart complexity",
     ],
   },
   {
     icon: Store,
-    title: "Vendor Management",
-    summary: "A workspace, not a marketplace.",
+    title: "Vendor Management Workspace",
+    summary:
+      "Manage all your event service providers in an unbundled workspace with zero middleman fees. Log quotes, compare estimated vs. actual invoices, track booking statuses from research to booked, and keep contact details accessible.",
     points: [
-      "Track from research to booking to completion",
-      "Categories, contacts, costs, and notes",
-      "Estimated versus actual cost comparison",
-      "Search, filter, and detail views",
+      "Track vendors across research, contacted, shortlisted, and booked stages",
+      "Record vendor categories, contact details, quotes, and custom notes",
+      "Side-by-side comparison of estimated quotes versus actual invoices",
+      "Pure management workspace — you hire and negotiate on your own terms",
     ],
   },
   {
     icon: Users,
-    title: "Guest Management",
-    summary: "RSVPs, meal preferences, special requirements.",
+    title: "Guest List & RSVP Tracking",
+    summary:
+      "Streamline guest coordination across families, friends, and VIP groups. Track digital RSVPs, meal and dietary preferences, plus-ones, and contact details with real-time response summaries.",
     points: [
-      "Pending, Accepted, Declined summary",
-      "Group or family organization",
-      "Meal preference and plus-one tracking",
-      "Large-list tools and mobile-friendly design",
+      "Real-time summary breakdown: Attending, Declined, and Pending RSVPs",
+      "Organize guests by family clusters, tables, or relationship groups",
+      "Track meal preferences (vegetarian, non-vegetarian, dietary restrictions)",
+      "High-capacity guest list tools with mobile-optimized filtering",
     ],
   },
   {
     icon: Clock,
-    title: "Event-Day Schedule",
-    summary: "A dedicated operational screen for the day itself.",
+    title: "Event-Day Hourly Schedule",
+    summary:
+      "Execute smoothly on the day of the celebration with a dedicated mobile-first operational run sheet. Monitor current and upcoming ceremony activities, venue locations, assigned coordinators, and live status adjustments in real time.",
     points: [
-      "Mobile-first design for event-day use",
-      "Current activity and next-up highlighted",
-      "Time, location, owner, and status",
-      "Quick status updates as the day unfolds",
+      "Mobile-first operational view designed for coordinators on event day",
+      "Current ceremony activity and upcoming items highlighted automatically",
+      "Exact start/end times, venue hall locations, and responsible leads",
+      "Quick one-tap status updates as celebrations unfold",
     ],
   },
   {
     icon: Wand2,
     title: "AI Planning Assistant",
-    summary: "Event-aware chat that knows your context.",
+    summary:
+      "Get context-aware planning advice on demand. Ask how to reduce budget variances, prioritize overdue tasks, or sequence traditional ceremonies with an assistant that understands your specific event context.",
     points: [
-      "Knows which event is currently selected",
-      "Surfaces overdue tasks and budget risks",
-      "Suggested prompts to get you started",
-      "Responses clearly marked as AI-generated",
+      "Deeply aware of currently selected event tasks, budget, and dates",
+      "Proactively surfaces budget risks and overdue milestone bottlenecks",
+      "Curated quick prompts for wedding, birthday, and festival planning",
+      "Transparent AI: all generated responses are clearly labeled",
     ],
   },
   {
     icon: Bell,
-    title: "Notifications",
-    summary: "All your alerts in one place.",
+    title: "Event Notifications & Reminders",
+    summary:
+      "Stay ahead of planning deadlines with centralized notifications. Receive actionable alerts for approaching task due dates, budget thresholds, vendor payment milestones, and pending guest RSVPs.",
     points: [
-      "Task overdue, deadline, budget, vendor, guest reminders",
-      "Read and unread states",
-      "Mark one or all as read",
-      "Linked to the relevant event",
+      "Actionable alerts for overdue tasks, budget limits, and vendor milestones",
+      "Clear unread counters with single-click 'Mark all read' control",
+      "Direct navigation from notifications to relevant task or vendor records",
+      "Event-specific alert isolation ensures multi-event planners stay focused",
     ],
   },
   {
     icon: FileDown,
-    title: "Export",
-    summary: "Preview your plan before sharing.",
+    title: "Event Export & Plan Preview",
+    summary:
+      "Preview your complete celebration plan in a structured view before sharing with family and co-planners: event summary, budget breakdown, tasks, timeline, vendors, guests, and schedule.",
     points: [
-      "Preview event summary, budget, tasks, timeline",
-      "Preview vendors, guests, and event-day schedule",
-      "PDF and ICS file download planned for production",
-      "Tabbed preview organized by section",
+      "Comprehensive preview: Event summary, budget, tasks, timeline, vendors",
+      "Full export preview of guest lists with RSVP statuses and meal preferences",
+      "Complete hour-by-hour event day schedule ready for print or sharing",
+      "Full in-browser preview across all sections; direct PDF/ICS file download planned for production release",
     ],
   },
 ];
@@ -146,12 +156,10 @@ export function FeaturesView() {
               Features
             </p>
             <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight font-display text-foreground leading-tight">
-              Every feature does real work.
+              All the tools you need to plan a celebration.
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              No decorative dashboards, no vanity metrics. Each capability in
-              UtsavAI exists to make planning a celebration calmer and more
-              organized.
+              From budget tracking and task management to vendor coordination, guest RSVPs, and hour-by-hour event-day schedules.
             </p>
           </div>
         </section>
@@ -196,20 +204,28 @@ export function FeaturesView() {
         <section className="py-12 border-t border-border bg-secondary/30">
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center space-y-4">
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight font-display text-foreground">
-              Try every feature with realistic demo data.
+              Try every event planning feature with realistic celebration data.
             </h2>
-            <p className="text-sm text-muted-foreground">
-              The showcase includes a full wedding event, a birthday, and a
-              community get-together. Explore the dashboard, edit tasks, change
-              RSVPs, and chat with the AI assistant.
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-xl mx-auto">
+              Explore interactive weddings, birthdays, and community festivals. Test budget allocation charts,
+              manage task dependencies, review vendor records, and test the event-aware AI assistant.
             </p>
-            <Button
-              size="lg"
-              onClick={() => navigate({ kind: "public", view: "register" })}
-            >
-              Start Planning
-              <ArrowRight className="h-4 w-4 ml-1.5" />
-            </Button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <Button
+                size="lg"
+                onClick={() => navigate({ kind: "public", view: "register" })}
+              >
+                Start Planning Free
+                <ArrowRight className="h-4 w-4 ml-1.5" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate({ kind: "public", view: "faq" })}
+              >
+                View Planning FAQs
+              </Button>
+            </div>
           </div>
         </section>
       </main>
