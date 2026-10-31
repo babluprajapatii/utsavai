@@ -5,19 +5,20 @@ import dynamic from "next/dynamic";
 import { useAppStore } from "@/lib/store";
 import { AppShell } from "@/components/app/app-shell";
 import { HomeView } from "@/components/views/home";
-import { AboutView } from "@/components/views/about";
-import { FeaturesView } from "@/components/views/features";
-import { FaqView } from "@/components/views/faq";
-import { LoginView } from "@/components/views/login";
-import { RegisterView } from "@/components/views/register";
-import { PrivacyView } from "@/components/views/privacy";
-import { TermsView } from "@/components/views/terms";
 
 const ViewLoading = () => (
   <div className="flex items-center justify-center min-h-[300px]">
     <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
   </div>
 );
+
+const AboutView = dynamic(() => import("@/components/views/about").then((m) => m.AboutView), { loading: ViewLoading });
+const FeaturesView = dynamic(() => import("@/components/views/features").then((m) => m.FeaturesView), { loading: ViewLoading });
+const FaqView = dynamic(() => import("@/components/views/faq").then((m) => m.FaqView), { loading: ViewLoading });
+const LoginView = dynamic(() => import("@/components/views/login").then((m) => m.LoginView), { loading: ViewLoading });
+const RegisterView = dynamic(() => import("@/components/views/register").then((m) => m.RegisterView), { loading: ViewLoading });
+const PrivacyView = dynamic(() => import("@/components/views/privacy").then((m) => m.PrivacyView), { loading: ViewLoading });
+const TermsView = dynamic(() => import("@/components/views/terms").then((m) => m.TermsView), { loading: ViewLoading });
 
 const OnboardingFlow = dynamic(() => import("@/components/onboarding/onboarding-flow").then((m) => m.OnboardingFlow), { loading: ViewLoading });
 const DashboardView = dynamic(() => import("@/components/views/dashboard").then((m) => m.DashboardView), { loading: ViewLoading });
