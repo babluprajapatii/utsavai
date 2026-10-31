@@ -4,10 +4,12 @@ console.log('UTSAVAI TECHNICAL SEO VERIFICATION');
 console.log('===================================\n');
 
 let failed = 0;
+let passed = 0;
 
 function check(title, condition, detail = '') {
   if (condition) {
     console.log(`[PASS] ${title}`);
+    passed++;
   } else {
     console.error(`[FAIL] ${title}${detail ? ': ' + detail : ''}`);
     failed++;
@@ -23,8 +25,10 @@ const expectedUrl =
 
 console.log(`Verifying against target canonical domain: ${expectedUrl}\n`);
 
+const basePath = fs.existsSync('.next') ? '.' : 'frontend';
+
 // 1. Check robots.txt generated body
-const robotsPath = 'frontend/.next/server/app/robots.txt.body';
+const robotsPath = `${basePath}/.next/server/app/robots.txt.body`;
 check('robots.txt was generated during build', fs.existsSync(robotsPath));
 
 if (fs.existsSync(robotsPath)) {
@@ -38,7 +42,7 @@ if (fs.existsSync(robotsPath)) {
 }
 
 // 2. Check sitemap.xml generated body
-const sitemapPath = 'frontend/.next/server/app/sitemap.xml.body';
+const sitemapPath = `${basePath}/.next/server/app/sitemap.xml.body`;
 check('sitemap.xml was generated during build', fs.existsSync(sitemapPath));
 
 if (fs.existsSync(sitemapPath)) {
@@ -54,7 +58,7 @@ if (fs.existsSync(sitemapPath)) {
 }
 
 // 3. Check index.html SEO metadata
-const indexPath = 'frontend/.next/server/app/index.html';
+const indexPath = `${basePath}/.next/server/app/index.html`;
 check('index.html was prerendered', fs.existsSync(indexPath));
 
 if (fs.existsSync(indexPath)) {
@@ -69,10 +73,60 @@ if (fs.existsSync(indexPath)) {
   check(`OpenGraph canonical url is present (${expectedUrl})`, html.includes(`property="og:url" content="${expectedUrl}"`));
   check('Twitter card is configured as summary_large_image', html.includes('name="twitter:card" content="summary_large_image"'));
   check('Unique meta description exists', html.includes('name="description" content="UtsavAI is an intelligent event and celebration planning platform.'));
+
+  // 3b. Validate Schema.org structured data (JSON-LD)
+  const jsonLdMatches = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g);
+  check('JSON-LD script block is present in index.html', !!jsonLdMatches && jsonLdMatches.length > 0);
+  check('No duplicate JSON-LD script blocks', !!jsonLdMatches && jsonLdMatches.length === 1);
+
+  if (jsonLdMatches && jsonLdMatches.length === 1) {
+    const rawJson = jsonLdMatches[0]
+      .replace('<script type="application/ld+json">', '')
+      .replace('</script>', '');
+    let parsed = null;
+    try {
+      parsed = JSON.parse(rawJson);
+      check('JSON-LD parses as valid JSON', true);
+    } catch (e) {
+      check('JSON-LD parses as valid JSON', false, e.message);
+    }
+
+    if (parsed) {
+      check('JSON-LD specifies @context as https://schema.org', parsed['@context'] === 'https://schema.org');
+      check('JSON-LD contains @graph array', Array.isArray(parsed['@graph']));
+
+      if (Array.isArray(parsed['@graph'])) {
+        const org = parsed['@graph'].find((e) => e['@type'] === 'Organization');
+        check('Organization schema is present in @graph', !!org);
+        if (org) {
+          check('Organization name is UtsavAI', org.name === 'UtsavAI');
+          check(`Organization URL is ${expectedUrl}`, org.url === expectedUrl);
+          check(`Organization logo is absolute URL (${expectedUrl}/brand/logo-mark.png)`, org.logo?.url === `${expectedUrl}/brand/logo-mark.png`);
+        }
+
+        const site = parsed['@graph'].find((e) => e['@type'] === 'WebSite');
+        check('WebSite schema is present in @graph', !!site);
+        if (site) {
+          check('WebSite name is UtsavAI', site.name === 'UtsavAI');
+          check(`WebSite URL is ${expectedUrl}`, site.url === expectedUrl);
+          check(`WebSite references Organization publisher`, site.publisher?.['@id'] === `${expectedUrl}/#organization`);
+        }
+
+        const app = parsed['@graph'].find((e) => e['@type'] === 'WebApplication');
+        check('WebApplication schema is present in @graph', !!app);
+        if (app) {
+          check('WebApplication name is UtsavAI', app.name === 'UtsavAI');
+          check(`WebApplication URL is ${expectedUrl}`, app.url === expectedUrl);
+          check('WebApplication applicationCategory is BusinessApplication', app.applicationCategory === 'BusinessApplication');
+          check('WebApplication references Organization provider', app.provider?.['@id'] === `${expectedUrl}/#organization`);
+        }
+      }
+    }
+  }
 }
 
 // 4. Check 404 page noindex directive
-const notFoundPath = 'frontend/.next/server/app/_not-found.html';
+const notFoundPath = `${basePath}/.next/server/app/_not-found.html`;
 check('_not-found.html was prerendered', fs.existsSync(notFoundPath));
 
 if (fs.existsSync(notFoundPath)) {
@@ -81,13 +135,14 @@ if (fs.existsSync(notFoundPath)) {
 }
 
 // 5. Ensure legacy public/robots.txt was cleanly removed
-check('Static public/robots.txt removed to allow dynamic app/robots.ts', !fs.existsSync('frontend/public/robots.txt'));
+const publicRobotsPath = `${basePath}/public/robots.txt`;
+check('Static public/robots.txt removed to allow dynamic app/robots.ts', !fs.existsSync(publicRobotsPath));
 
 console.log('\n===================================');
 if (failed === 0) {
-  console.log('ALL TECHNICAL SEO CHECKS PASSED (24/24)');
+  console.log(`ALL TECHNICAL SEO CHECKS PASSED (${passed}/${passed})`);
   process.exit(0);
 } else {
-  console.error(`FAILED: ${failed} checks failed.`);
+  console.error(`FAILED: ${failed} checks failed (${passed} passed).`);
   process.exit(1);
 }
