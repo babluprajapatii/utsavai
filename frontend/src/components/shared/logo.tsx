@@ -1,7 +1,7 @@
 "use client";
- 
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useTheme } from "next-themes";
 
 interface LogoProps {
@@ -16,6 +16,23 @@ interface LogoProps {
 // The logo mark image is 1162 wide x 1112 tall (near square, slightly wider)
 const MARK_ASPECT = 1162 / 1112;
 
+function getOptimizedLogoSrc(size: number, isLight: boolean): string {
+  if (isLight) {
+    if (size <= 32) return "/brand/logo-mark-light-32.png";
+    if (size <= 48) return "/brand/logo-mark-light-48.png";
+    if (size <= 64) return "/brand/logo-mark-light-64.png";
+    if (size <= 128) return "/brand/logo-mark-light-128.png";
+    if (size <= 256) return "/brand/logo-mark-light-256.png";
+    return "/brand/logo-mark-light.png";
+  }
+  if (size <= 32) return "/brand/logo-mark-32.png";
+  if (size <= 48) return "/brand/logo-mark-48.png";
+  if (size <= 64) return "/brand/logo-mark-64.png";
+  if (size <= 128) return "/brand/logo-mark-128.png";
+  if (size <= 256) return "/brand/logo-mark-256.png";
+  return "/brand/logo-mark.png";
+}
+
 export function Logo({
   size = 32,
   withText = true,
@@ -27,17 +44,7 @@ export function Logo({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const isDark =
-    mounted &&
-    (theme === "dark" || (theme === "system" && systemTheme === "dark"));
   const isLightVariant = variant === "light";
-
-  // The full-color flower mark works on both light and dark backgrounds.
-  // Use the white silhouette only when explicitly requested via variant="light"
-  // (typically on dark CTA sections where the brand needs to read as white).
-  const iconSrc = isLightVariant
-    ? "/brand/logo-mark-light.png"
-    : "/brand/logo-mark.png";
 
   const textColor = variant === "light" ? "text-white" : "text-foreground";
 
@@ -49,6 +56,9 @@ export function Logo({
   // For the icon: mark is roughly square (slightly wider)
   const iconHeight = size;
   const iconWidth = size * MARK_ASPECT;
+  const pixelWidth = Math.round(iconWidth);
+  const pixelHeight = Math.round(iconHeight);
+  const iconSrc = getOptimizedLogoSrc(pixelHeight, isLightVariant);
 
   const wordmark = withText && (
     <span
@@ -61,23 +71,28 @@ export function Logo({
     </span>
   );
 
+  const renderIcon = (
+    <span
+      className="inline-flex items-center justify-center shrink-0"
+      style={{ width: `${iconWidth}px`, height: `${iconHeight}px` }}
+    >
+      <Image
+        src={iconSrc}
+        alt=""
+        width={pixelWidth}
+        height={pixelHeight}
+        priority={size <= 36}
+        className="object-contain"
+        style={{ width: "100%", height: "100%", display: "block" }}
+        aria-hidden="true"
+      />
+    </span>
+  );
+
   if (stacked) {
     return (
       <span className={`inline-flex flex-col items-center gap-2 ${className}`}>
-        <span
-          className="inline-flex items-center justify-center shrink-0"
-          style={{ width: `${iconWidth}px`, height: `${iconHeight}px` }}
-        >
-          <img
-            src={iconSrc}
-            alt=""
-            width={Math.round(iconWidth)}
-            height={Math.round(iconHeight)}
-            className="object-contain"
-            style={{ width: "100%", height: "100%", display: "block" }}
-            aria-hidden="true"
-          />
-        </span>
+        {renderIcon}
         {wordmark}
       </span>
     );
@@ -85,20 +100,7 @@ export function Logo({
 
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
-      <span
-        className="inline-flex items-center justify-center shrink-0"
-        style={{ width: `${iconWidth}px`, height: `${iconHeight}px` }}
-      >
-        <img
-          src={iconSrc}
-          alt=""
-          width={Math.round(iconWidth)}
-          height={Math.round(iconHeight)}
-          className="object-contain"
-          style={{ width: "100%", height: "100%", display: "block" }}
-          aria-hidden="true"
-        />
-      </span>
+      {renderIcon}
       {wordmark}
     </span>
   );
