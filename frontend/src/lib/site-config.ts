@@ -13,7 +13,7 @@ export function getSiteUrl(): string {
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.replace(/\/+$/, '')}`;
   }
-  return 'https://utsavai.app';
+  return 'https://utsavai-ten.vercel.app';
 }
 
 export const SITE_URL = getSiteUrl();
