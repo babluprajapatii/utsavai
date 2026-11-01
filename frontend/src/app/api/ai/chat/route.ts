@@ -9,7 +9,7 @@ import {
   apiError,
 } from '@/lib/api/response';
 import { aiChatSchema } from '@/lib/api/validation';
-import { checkRateLimit } from '@/lib/api/rate-limit';
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/api/rate-limit';
 import {
   isGeminiConfigured,
   callGeminiApi,
@@ -36,7 +36,8 @@ export async function POST(request: NextRequest) {
         'RATE_LIMITED',
         'Rate limit exceeded. Please wait a moment before sending more messages.',
         429,
-        { retryAfter: rateLimit.resetInSeconds }
+        { retryAfter: rateLimit.resetInSeconds },
+        getRateLimitHeaders(rateLimit)
       );
     }
 
@@ -162,10 +163,15 @@ export async function POST(request: NextRequest) {
       .update({ updated_at: new Date().toISOString() })
       .eq('id', convId);
 
-    return apiSuccess({
-      response: assistantReply,
-      conversationId: convId,
-    });
+    return apiSuccess(
+      {
+        response: assistantReply,
+        conversationId: convId,
+      },
+      200,
+      undefined,
+      getRateLimitHeaders(rateLimit)
+    );
   } catch (error: unknown) {
     const errorMsg = error instanceof Error ? error.message : 'Unknown error';
     return serverError('An error occurred while processing your message.', errorMsg);

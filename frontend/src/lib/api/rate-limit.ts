@@ -23,6 +23,22 @@ export interface RateLimitResult {
   isSharedStore: boolean;
 }
 
+/**
+ * Builds standard RFC/IETF rate limiting headers for API responses.
+ * Never exposes secrets or internal infrastructure details.
+ */
+export function getRateLimitHeaders(result: RateLimitResult): Record<string, string> {
+  const headers: Record<string, string> = {
+    'RateLimit-Limit': String(result.limit),
+    'RateLimit-Remaining': String(Math.max(0, result.remaining)),
+    'RateLimit-Reset': String(Math.max(0, result.resetInSeconds)),
+  };
+  if (!result.allowed) {
+    headers['Retry-After'] = String(Math.max(1, result.resetInSeconds));
+  }
+  return headers;
+}
+
 // Local in-memory store used exclusively for non-production development/test execution
 const localMemoryStore = new Map<string, { count: number; resetAt: number }>();
 

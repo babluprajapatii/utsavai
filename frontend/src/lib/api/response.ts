@@ -25,25 +25,27 @@ export interface ApiErrorEnvelope {
 export function apiSuccess<T>(
   data: T,
   status = 200,
-  pagination?: PaginationMeta
+  pagination?: PaginationMeta,
+  headers?: HeadersInit
 ): NextResponse<ApiSuccessEnvelope<T>> {
   const body: ApiSuccessEnvelope<T> = {
     success: true,
     data,
     ...(pagination ? { pagination } : {}),
   };
-  return NextResponse.json(body, { status });
+  return NextResponse.json(body, { status, headers });
 }
 
-export function apiNoContent(): NextResponse {
-  return new NextResponse(null, { status: 204 });
+export function apiNoContent(headers?: HeadersInit): NextResponse {
+  return new NextResponse(null, { status: 204, headers });
 }
 
 export function apiError(
   code: string,
   message: string,
   status = 400,
-  details?: unknown
+  details?: unknown,
+  headers?: HeadersInit
 ): NextResponse<ApiErrorEnvelope> {
   return NextResponse.json(
     {
@@ -54,7 +56,7 @@ export function apiError(
         ...(details !== undefined ? { details } : {}),
       },
     },
-    { status }
+    { status, headers }
   );
 }
 

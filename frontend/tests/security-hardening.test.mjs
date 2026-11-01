@@ -12,6 +12,7 @@ import {
   checkRateLimit,
   getRateLimitConfigDiagnostics,
   isSharedRateLimiterConfigured,
+  getRateLimitHeaders,
 } from '../src/lib/api/rate-limit.ts';
 import nextConfig from '../next.config.ts';
 
@@ -162,11 +163,45 @@ test('Security: next.config.ts configures mandatory HTTP security headers', asyn
   assert.ok(headerMap.get('Permissions-Policy')?.includes('microphone=()'));
   assert.ok(headerMap.get('Permissions-Policy')?.includes('geolocation=()'));
 
-  // Verify CSP Report-Only configuration
-  const csp = headerMap.get('Content-Security-Policy-Report-Only');
-  assert.ok(csp, 'Content-Security-Policy-Report-Only must be present');
+  // Verify enforced CSP configuration
+  const csp = headerMap.get('Content-Security-Policy');
+  assert.ok(csp, 'Enforced Content-Security-Policy must be present');
   assert.ok(csp.includes("default-src 'self'"));
   assert.ok(csp.includes("https://*.supabase.co"));
   assert.ok(csp.includes("frame-ancestors 'none'"));
+  assert.ok(csp.includes("base-uri 'self'"));
+  assert.ok(csp.includes("object-src 'none'"));
+  assert.ok(!csp.includes("'unsafe-eval'"), "Enforced CSP must not include 'unsafe-eval'");
+});
+
+// ============================================================================
+// 5. Standard Rate Limiting Headers Tests
+// ============================================================================
+test('Security: Standard RateLimit-Limit, RateLimit-Remaining, and RateLimit-Reset headers', () => {
+  const allowedResult = {
+    allowed: true,
+    limit: 20,
+    remaining: 19,
+    resetInSeconds: 58,
+    isSharedStore: true,
+  };
+  const allowedHeaders = getRateLimitHeaders(allowedResult);
+  assert.equal(allowedHeaders['RateLimit-Limit'], '20');
+  assert.equal(allowedHeaders['RateLimit-Remaining'], '19');
+  assert.equal(allowedHeaders['RateLimit-Reset'], '58');
+  assert.equal(allowedHeaders['Retry-After'], undefined);
+
+  const blockedResult = {
+    allowed: false,
+    limit: 20,
+    remaining: 0,
+    resetInSeconds: 45,
+    isSharedStore: true,
+  };
+  const blockedHeaders = getRateLimitHeaders(blockedResult);
+  assert.equal(blockedHeaders['RateLimit-Limit'], '20');
+  assert.equal(blockedHeaders['RateLimit-Remaining'], '0');
+  assert.equal(blockedHeaders['RateLimit-Reset'], '45');
+  assert.equal(blockedHeaders['Retry-After'], '45');
 });
 

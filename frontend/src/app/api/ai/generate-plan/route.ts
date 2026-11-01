@@ -9,7 +9,7 @@ import {
   apiError,
 } from '@/lib/api/response';
 import { generatePlanSchema } from '@/lib/api/validation';
-import { checkRateLimit } from '@/lib/api/rate-limit';
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/api/rate-limit';
 import {
   isGeminiConfigured,
   callGeminiApi,
@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
         'RATE_LIMITED',
         'Rate limit exceeded. Please wait a moment before generating another plan.',
         429,
-        { retryAfter: rateLimit.resetInSeconds }
+        { retryAfter: rateLimit.resetInSeconds },
+        getRateLimitHeaders(rateLimit)
       );
     }
 
@@ -150,13 +151,18 @@ export async function POST(request: NextRequest) {
       return serverError('Failed to stage generated plan in database.', stageErr?.message);
     }
 
-    return apiSuccess({
-      planId: stagedPlan.id,
-      eventId: event.id,
-      createdAt: stagedPlan.created_at,
-      plan: finalPlan,
-      warnings: warnings.length > 0 ? warnings : undefined,
-    });
+    return apiSuccess(
+      {
+        planId: stagedPlan.id,
+        eventId: event.id,
+        createdAt: stagedPlan.created_at,
+        plan: finalPlan,
+        warnings: warnings.length > 0 ? warnings : undefined,
+      },
+      200,
+      undefined,
+      getRateLimitHeaders(rateLimit)
+    );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     return serverError('An error occurred during event plan generation.', message);

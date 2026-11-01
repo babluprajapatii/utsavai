@@ -48,6 +48,21 @@ export default function Home() {
     initAuth();
   }, [initAuth]);
 
+  // Support direct URL hash navigation for public views (e.g. /#privacy, /#terms, /#faq)
+  useEffect(() => {
+    const handleHash = () => {
+      if (typeof window === "undefined") return;
+      const hash = window.location.hash.replace("#", "").toLowerCase();
+      const validViews = ["home", "about", "features", "faq", "login", "register", "privacy", "terms"] as const;
+      if (validViews.includes(hash as any)) {
+        navigate({ kind: "public", view: hash as any });
+      }
+    };
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, [navigate]);
+
   // Auth guard: unauthenticated users cannot access onboarding or app views
   useEffect(() => {
     if (!authLoading && !isAuthed && route.kind !== "public") {

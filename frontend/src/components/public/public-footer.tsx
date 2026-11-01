@@ -51,13 +51,17 @@ export function PublicFooter() {
               <ul className="space-y-2">
                 {section.links.map((link) => (
                   <li key={link.label}>
-                    <button
-                      type="button"
-                      onClick={() => navigate({ kind: "public", view: link.view })}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+                    <a
+                      href={`#${link.view}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate({ kind: "public", view: link.view });
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 inline-block"
                     >
                       {link.label}
-                    </button>
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -72,20 +76,28 @@ export function PublicFooter() {
               custom occasions.
             </p>
             <div className="pt-1 flex flex-col gap-1.5 text-xs text-muted-foreground">
-              <button
-                type="button"
-                onClick={() => navigate({ kind: "public", view: "features" })}
-                className="text-left hover:text-foreground transition-colors cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+              <a
+                href="#features"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate({ kind: "public", view: "features" });
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="text-left hover:text-foreground transition-colors cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 inline-block"
               >
                 Budget, Tasks &amp; Vendor Tools →
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate({ kind: "public", view: "faq" })}
-                className="text-left hover:text-foreground transition-colors cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+              </a>
+              <a
+                href="#faq"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate({ kind: "public", view: "faq" });
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="text-left hover:text-foreground transition-colors cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 inline-block"
               >
                 Celebration Planning FAQs →
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -94,20 +106,28 @@ export function PublicFooter() {
             © {new Date().getFullYear()} UtsavAI. All rights reserved.
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <button
-              type="button"
-              onClick={() => navigate({ kind: "public", view: "privacy" })}
-              className="hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+            <a
+              href="#privacy"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate({ kind: "public", view: "privacy" });
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 inline-block"
             >
               Privacy
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate({ kind: "public", view: "terms" })}
-              className="hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+            </a>
+            <a
+              href="#terms"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate({ kind: "public", view: "terms" });
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 inline-block"
             >
               Terms
-            </button>
+            </a>
           </div>
         </div>
       </div>
