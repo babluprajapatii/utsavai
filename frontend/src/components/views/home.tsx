@@ -530,7 +530,7 @@ function HeroDashboardPreview() {
           {/* Sidebar */}
           <aside className="col-span-3 border-r border-border bg-secondary/30 p-3 hidden sm:block">
             <div className="flex items-center gap-2 px-2 py-2 mb-3">
-              <Logo size={22} withText={false} />
+              <Logo size={22} withText={false} alt="UtsavAI logo mark" />
               <span className="text-xs font-semibold">UtsavAI</span>
             </div>
             <div className="space-y-1">

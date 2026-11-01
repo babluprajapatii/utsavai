@@ -11,6 +11,10 @@ interface LogoProps {
   /** Stack the wordmark below the icon (vertical lockup) instead of beside it */
   stacked?: boolean;
   className?: string;
+  /** Custom alt text for the logo mark. Defaults to empty when text is shown, or 'UtsavAI' when standalone */
+  alt?: string;
+  /** Prioritize image loading (above-the-fold headers). Defaults to false for below-the-fold performance */
+  priority?: boolean;
 }
 
 // The logo mark image is 1162 wide x 1112 tall (near square, slightly wider)
@@ -39,6 +43,8 @@ export function Logo({
   variant = "default",
   stacked = false,
   className = "",
+  alt,
+  priority = false,
 }: LogoProps) {
   const { theme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -60,6 +66,13 @@ export function Logo({
   const pixelHeight = Math.round(iconHeight);
   const iconSrc = getOptimizedLogoSrc(pixelHeight, isLightVariant);
 
+  // Accessible image semantics:
+  // If alt is explicitly supplied, use it.
+  // Otherwise, if withText is true, the adjacent wordmark provides the name, so the image is decorative (alt="", aria-hidden="true").
+  // If withText is false, the image stands alone and is informative (alt="UtsavAI").
+  const resolvedAlt = alt !== undefined ? alt : withText ? "" : "UtsavAI";
+  const isDecorative = resolvedAlt === "";
+
   const wordmark = withText && (
     <span
       className={`font-semibold tracking-tight font-display ${textColor} ${
@@ -78,13 +91,15 @@ export function Logo({
     >
       <Image
         src={iconSrc}
-        alt=""
+        alt={resolvedAlt}
         width={pixelWidth}
         height={pixelHeight}
-        priority={size <= 36}
+        priority={priority}
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
         className="object-contain"
         style={{ width: "100%", height: "100%", display: "block" }}
-        aria-hidden="true"
+        aria-hidden={isDecorative ? "true" : undefined}
       />
     </span>
   );

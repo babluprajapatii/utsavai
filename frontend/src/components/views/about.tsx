@@ -98,6 +98,82 @@ export function AboutView() {
           </div>
         </section>
 
+        {/* Technical Architecture & Standards */}
+        <section className="border-b border-border py-16 sm:py-20 bg-secondary/20">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="text-center space-y-3">
+              <p className="text-xs font-medium uppercase tracking-wider text-primary">
+                Technical Architecture &amp; Standards
+              </p>
+              <h2 className="text-3xl font-semibold tracking-tight font-display text-foreground">
+                Built on Open Standards &amp; Modern Web Resilience
+              </h2>
+              <p className="text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                UtsavAI follows modern engineering specifications for accessibility, data modeling, and web security. Platform specification updated: October 2026.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Card className="p-5 gap-0">
+                <h3 className="text-sm font-semibold font-display text-foreground">
+                  Accessibility (WCAG 2.2 AA)
+                </h3>
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                  Engineered following W3C Web Content Accessibility Guidelines. Includes skip navigation, visible focus indicators, semantic landmarks, and screen-reader announcements.
+                </p>
+                <div className="mt-3">
+                  <a
+                    href="https://www.w3.org/WAI/standards-guidelines/wcag/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1"
+                  >
+                    W3C WCAG Guidelines ↗
+                  </a>
+                </div>
+              </Card>
+
+              <Card className="p-5 gap-0">
+                <h3 className="text-sm font-semibold font-display text-foreground">
+                  Structured Data (Schema.org)
+                </h3>
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                  Rich JSON-LD entity graph representing Organization, WebSite, WebApplication, and FAQPage schemas, validated against Google Rich Results specifications.
+                </p>
+                <div className="mt-3">
+                  <a
+                    href="https://schema.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1"
+                  >
+                    Schema.org Standard ↗
+                  </a>
+                </div>
+              </Card>
+
+              <Card className="p-5 gap-0">
+                <h3 className="text-sm font-semibold font-display text-foreground">
+                  Security &amp; Rate Limiting
+                </h3>
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                  Defense-in-depth architecture applying strict HTTP security headers (CSP Report-Only, nosniff, frame denial), sanitized error outputs, and distributed rate limiting.
+                </p>
+                <div className="mt-3">
+                  <a
+                    href="https://owasp.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1"
+                  >
+                    OWASP Guidelines ↗
+                  </a>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </section>
+
         <section className="py-16 sm:py-20">
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 space-y-6 text-center">
             <h2 className="text-3xl font-semibold tracking-tight font-display text-foreground">

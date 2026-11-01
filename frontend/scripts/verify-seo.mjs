@@ -38,6 +38,7 @@ if (fs.existsSync(robotsPath)) {
   check('robots.txt disallows /api/', robots.includes('Disallow: /api/'));
   check('robots.txt disallows /auth/', robots.includes('Disallow: /auth/'));
   check('robots.txt does not block CSS/JS/images', !robots.includes('/_next/'));
+  check('robots.txt contains AI crawler rules (GPTBot, ClaudeBot, PerplexityBot)', robots.includes('GPTBot') && robots.includes('ClaudeBot') && robots.includes('PerplexityBot'));
   check(`robots.txt links to absolute HTTPS sitemap.xml (${expectedUrl}/sitemap.xml)`, robots.includes(`Sitemap: ${expectedUrl}/sitemap.xml`));
 }
 
@@ -120,6 +121,15 @@ if (fs.existsSync(indexPath)) {
           check('WebApplication applicationCategory is BusinessApplication', app.applicationCategory === 'BusinessApplication');
           check('WebApplication references Organization provider', app.provider?.['@id'] === `${expectedUrl}/#organization`);
         }
+
+        const faq = parsed['@graph'].find((e) => e['@type'] === 'FAQPage');
+        check('FAQPage schema is present in @graph', !!faq);
+        if (faq) {
+          check('FAQPage references WebSite', faq.isPartOf?.['@id'] === `${expectedUrl}/#website`);
+          check('FAQPage contains mainEntity questions array', Array.isArray(faq.mainEntity) && faq.mainEntity.length >= 5);
+          const firstQ = faq.mainEntity?.[0];
+          check('FAQ questions contain Question type and acceptedAnswer', firstQ?.['@type'] === 'Question' && firstQ?.acceptedAnswer?.['@type'] === 'Answer');
+        }
       }
     }
   }
@@ -137,6 +147,17 @@ if (fs.existsSync(notFoundPath)) {
 // 5. Ensure legacy public/robots.txt was cleanly removed
 const publicRobotsPath = `${basePath}/public/robots.txt`;
 check('Static public/robots.txt removed to allow dynamic app/robots.ts', !fs.existsSync(publicRobotsPath));
+
+// 6. Check llms.txt exists and is informative
+const llmsTxtPath = `${basePath}/public/llms.txt`;
+check('llms.txt file is present in public directory', fs.existsSync(llmsTxtPath));
+
+if (fs.existsSync(llmsTxtPath)) {
+  const llms = fs.readFileSync(llmsTxtPath, 'utf8');
+  check('llms.txt defines UtsavAI title and overview', llms.includes('# UtsavAI') && llms.includes('celebration'));
+  check('llms.txt documents canonical site URL', llms.includes(expectedUrl));
+  check('llms.txt details core capabilities', llms.includes('Budget Management') && llms.includes('Task Management'));
+}
 
 console.log('\n===================================');
 if (failed === 0) {

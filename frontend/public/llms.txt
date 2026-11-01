@@ -1,0 +1,78 @@
+# UtsavAI
+
+> UtsavAI is an intelligent celebration and event planning web application designed for multi-day and single-day events, including weddings, birthdays, community festivals, family gatherings, and custom celebrations. It integrates budget tracking with contingency buffers, milestone-driven task management, vendor tracking, guest RSVP coordination, and a context-aware AI planning assistant.
+
+## Overview
+
+UtsavAI provides hosts, couples, and event coordinators with a unified, calm workspace to organize celebrations from initial concept to event day. The application is built for transparency, data control, and authentic celebration workflows (with native Indian Rupee INR budgeting and multi-event support, while remaining fully adaptable for any celebration worldwide).
+
+- **Canonical Website:** https://utsavai-ten.vercel.app
+- **Platform Architecture:** Next.js 16 (App Router), TypeScript, Tailwind CSS, Supabase PostgreSQL, and Upstash Redis rate limiting.
+- **Operating Model:** Software workspace. UtsavAI is an unbundled planning tool, not a vendor marketplace. Users manage and hire their own vendors directly with zero commission markups.
+
+## Core Capabilities & Features
+
+### 1. Smart Event Planning & AI Generation
+- Generates structured starter plans tailored to event type, estimated guest count, budget, and cultural preferences.
+- Plan sections include task checklists, timeline milestones, budget allocations, and ceremony sequences.
+- Transparent and editable: Every generated section can be reviewed, edited, accepted, or regenerated independently.
+- Deterministic fallback: Ensures complete starter plans even during intermittent network connectivity.
+
+### 2. Event Budget Management & Contingency
+- Comprehensive category breakdowns (Venue, Catering, Decor, Photography, Entertainment, Transportation, Attire, Contingency).
+- Interactive planned vs. actual expense tracking with variance indicators.
+- Dedicated contingency reserve kept distinct from category allocations to buffer against price fluctuations and emergency expenses.
+- Native INR formatting with localized celebration tiers.
+
+### 3. Task Management & Milestones
+- Priority levels: Low, Medium, High, and Critical.
+- Status workflow: Not Started, In Progress, and Completed.
+- Task assignments with responsible leads, target due dates, and automated overdue alerts.
+- Filterable and searchable dashboard task lists.
+
+### 4. Planning Timeline vs. Event-Day Schedule
+- **Planning Milestones Timeline:** Multi-week and multi-month milestone progression tracking major deliverables and vendor deadlines leading up to the celebration.
+- **Event-Day Hourly Schedule:** A mobile-optimized, real-time operational run sheet designed for on-site coordinators, venue leads, and family organizers on the day of the event.
+
+### 5. Vendor Management
+- Direct vendor coordination across stages: Research, Contacted, Shortlisted, and Booked.
+- Side-by-side tracking of vendor quotes, contracted rates, paid amounts, and outstanding balances.
+- Contact directory storing vendor names, phone numbers, email addresses, and notes.
+- Zero middleman markups: Users contract and negotiate directly with service providers.
+
+### 6. Guest List & RSVP Management
+- Real-time RSVP status tracking: Attending, Declined, and Pending.
+- Family and party clustering with plus-one counts.
+- Dietary preferences and restrictions (Vegetarian, Non-Vegetarian, Special Dietary needs) for accurate catering calculations.
+- Mobile-friendly guest check-in and contact directory.
+
+### 7. Context-Aware AI Assistant
+- Integrated chat assistant that accesses current event parameters (tasks, budget variance, dates, vendor status).
+- Answers planning questions, recommends task prioritization, and helps simulate budget trade-offs.
+- Clearly marked AI responses with zero synthetic testimonials or fabricated metrics.
+
+## Public URLs & Resources
+
+- **Home / How It Works:** https://utsavai-ten.vercel.app/
+  Main landing view, feature highlights, and interactive preview.
+- **Features:** https://utsavai-ten.vercel.app/ (Select Features view)
+  Detailed walkthrough of budget, task, timeline, vendor, and guest management modules.
+- **FAQ:** https://utsavai-ten.vercel.app/ (Select FAQ view)
+  Direct answers to common questions regarding pricing, AI transparency, data privacy, and mobile support.
+- **About:** https://utsavai-ten.vercel.app/ (Select About view)
+  Design philosophy, cultural context, and technical principles behind UtsavAI.
+- **Privacy Policy:** https://utsavai-ten.vercel.app/ (Select Privacy view)
+  Data protection practices, user rights, and privacy commitments.
+- **Terms & Conditions:** https://utsavai-ten.vercel.app/ (Select Terms view)
+  Platform terms of service and acceptable use guidelines.
+- **Sitemap:** https://utsavai-ten.vercel.app/sitemap.xml
+  Canonical XML sitemap.
+- **Robots Directives:** https://utsavai-ten.vercel.app/robots.txt
+  Public crawler access rules.
+
+## AI Crawler & Indexing Guidelines
+
+- Public content on UtsavAI is accessible for indexing and search summarization by verified AI user-agents (including GPTBot, ChatGPT-User, ClaudeBot, PerplexityBot, Applebot-Extended, and Google-Extended).
+- Private endpoints under `/api/` and `/auth/` require authentication and are excluded from crawler access.
+- Note: The presence of this file provides accurate, structured information about UtsavAI to AI models and search systems. It does not imply or guarantee inclusion or ranking in any specific search engine or AI index.
+

@@ -37,7 +37,7 @@ export function PublicNav() {
             className="flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="UtsavAI home"
           >
-            <Logo />
+            <Logo priority />
           </button>
 
           <nav
