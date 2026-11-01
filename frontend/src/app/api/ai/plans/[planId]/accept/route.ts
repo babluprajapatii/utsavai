@@ -4,22 +4,10 @@ import {
   apiSuccess,
   unauthorized,
   notFound,
+  badRequest,
   serverError,
 } from '@/lib/api/response';
-
-/**
- * Reads a value from either camelCase or snake_case key, falling back to undefined.
- */
-function pick<T>(record: Record<string, unknown>, keys: readonly string[]): T | undefined {
-  for (const key of keys) {
-    if (key in record) return record[key] as T;
-  }
-  return undefined;
-}
-
-function asRecord(v: unknown): Record<string, unknown> {
-  return (v as Record<string, unknown>) ?? {};
-}
+import { acceptPlanSchema } from '@/lib/api/validation';
 
 export async function POST(
   request: NextRequest,
@@ -51,141 +39,132 @@ export async function POST(
       return notFound('Parent event not found.');
     }
 
-    let body: Record<string, unknown> = {};
+    let body: unknown;
     try {
       body = await request.json();
     } catch {
-      // Body is optional; fallback to staged plan_data if no custom edits passed
+      return badRequest('Malformed JSON in request body.');
     }
 
-    const planData = stagedPlan.plan_data as Record<string, unknown>;
+    const parsed = acceptPlanSchema.safeParse(body);
+    if (!parsed.success) {
+      return badRequest('Invalid plan acceptance payload.', parsed.error.format());
+    }
 
-    const tasksToInsert = pick<unknown[]>(body, ['tasks']) ?? pick<unknown[]>(planData, ['tasks']) ?? [];
-    const milestonesToInsert = pick<unknown[]>(body, ['milestones']) ?? pick<unknown[]>(planData, ['milestones']) ?? [];
-    const scheduleToInsert =
-      pick<unknown[]>(body, ['eventDaySchedule', 'event_day_schedule']) ??
-      pick<unknown[]>(planData, ['eventDaySchedule', 'event_day_schedule']) ??
-      [];
-    const budgetCategoriesToInsert =
-      pick<unknown[]>(body, ['budgetCategories', 'budget_categories']) ??
-      pick<unknown[]>(planData, ['budgetCategories', 'budget_categories']) ??
-      [];
+    const planData = parsed.data as unknown as Record<string, unknown>;
 
-    let tasksCreated = 0;
-    let milestonesCreated = 0;
-    let scheduleItemsCreated = 0;
-    let categoriesCreated = 0;
+    let tasksInserted = 0;
+    let milestonesInserted = 0;
+    let scheduleItemsInserted = 0;
+    let categoriesInserted = 0;
 
-    // 1. Insert budget categories if none exist yet for this event
-    if (Array.isArray(budgetCategoriesToInsert) && budgetCategoriesToInsert.length > 0) {
-      const categoryRows = budgetCategoriesToInsert.map((v) => {
-        const item = asRecord(v);
-        return {
-          event_id: stagedPlan.event_id,
-          name: pick<string>(item, ['category', 'name']) ?? '',
-          planned_amount: pick<number>(item, ['suggested_amount', 'suggestedAmount', 'planned_amount']) ?? 0,
-        };
-      });
+    // Insert budget categories (idempotent via unique constraint on event_id+name)
+    if (Array.isArray(planData.budgetCategories)) {
+      const categoryRows = (planData.budgetCategories as any[]).map((cat: any) => ({
+        event_id: event.id,
+        name: cat.name,
+        planned_amount: cat.planned_amount ?? 0,
+      }));
 
-      const { data: insertedCategories } = await auth.supabase
+      const { data: insertedCategories, error: catError } = await auth.supabase
         .from('budget_categories')
         .upsert(categoryRows, { onConflict: 'event_id,name' })
         .select('id');
-      categoriesCreated = insertedCategories ? insertedCategories.length : 0;
+
+      categoriesInserted = Array.isArray(insertedCategories) ? insertedCategories.length : 0;
+      if (catError) {
+        throw new Error(`Failed to insert budget categories: ${catError.message}`);
+      }
     }
 
-    // 2. Insert tasks
-    if (Array.isArray(tasksToInsert) && tasksToInsert.length > 0) {
-      const taskRows = tasksToInsert.map((v) => {
-        const item = asRecord(v);
-        const priority = pick<string>(item, ['priority']) ?? 'Medium';
-        const validPriorities: readonly string[] = ['Low', 'Medium', 'High', 'Critical'];
-        const taskPriority = validPriorities.includes(priority) ? (priority as 'Low' | 'Medium' | 'High' | 'Critical') : 'Medium';
+    // Insert tasks
+    if (Array.isArray(planData.tasks)) {
+      const taskRows = (planData.tasks as any[]).map((task: any) => ({
+        event_id: event.id,
+        title: task.title,
+        description: task.description ?? null,
+        category: task.category ?? null,
+        priority: task.priority || 'Medium',
+        status: task.status ?? 'Not Started',
+        due_date: task.suggested_due_date ?? task.due_date ?? null,
+      }));
 
-        return {
-          event_id: stagedPlan.event_id,
-          title: pick<string>(item, ['title']) ?? '',
-          description: pick<string>(item, ['description']) ?? null,
-          category: pick<string>(item, ['category']) ?? null,
-          priority: taskPriority,
-          status: 'Not Started' as const,
-          due_date: pick<string>(item, ['suggested_due_date', 'suggestedDueDate', 'due_date']) ?? null,
-        };
-      });
-
-      const { data: insertedTasks } = await auth.supabase
+      const { data: insertedTasks, error: taskError } = await auth.supabase
         .from('tasks')
         .insert(taskRows)
         .select('id');
-      tasksCreated = insertedTasks ? insertedTasks.length : 0;
+
+      tasksInserted = Array.isArray(insertedTasks) ? insertedTasks.length : 0;
+      if (taskError) {
+        throw new Error(`Failed to insert tasks: ${taskError.message}`);
+      }
     }
 
-    // 3. Insert milestones
-    if (Array.isArray(milestonesToInsert) && milestonesToInsert.length > 0) {
-      const milestoneRows = milestonesToInsert.map((v) => {
-        const item = asRecord(v);
-        return {
-          event_id: stagedPlan.event_id,
-          title: pick<string>(item, ['title']) ?? '',
-          milestone_date:
-            pick<string>(item, ['suggested_date', 'suggestedDate', 'date', 'milestone_date']) ??
-            event.event_date,
-          description: pick<string>(item, ['description']) ?? null,
-          status: 'Pending' as const,
-        };
-      });
+    // Insert milestones
+    if (Array.isArray(planData.milestones)) {
+      const milestoneRows = (planData.milestones as any[]).map((ms: any) => ({
+        event_id: event.id,
+        title: ms.title,
+        milestone_date: ms.milestone_date ?? ms.suggested_date ?? null,
+        description: ms.description ?? '',
+      }));
 
-      const { data: insertedMilestones } = await auth.supabase
+      const { data: insertedMilestones, error: milestoneError } = await auth.supabase
         .from('event_milestones')
         .insert(milestoneRows)
         .select('id');
-      milestonesCreated = insertedMilestones ? insertedMilestones.length : 0;
+
+      milestonesInserted = Array.isArray(insertedMilestones) ? insertedMilestones.length : 0;
+      if (milestoneError) {
+        throw new Error(`Failed to insert milestones: ${milestoneError.message}`);
+      }
     }
 
-    // 4. Insert schedule items
-    if (Array.isArray(scheduleToInsert) && scheduleToInsert.length > 0) {
-      const scheduleRows = scheduleToInsert.map((v, idx) => {
-        const item = asRecord(v);
-        return {
-          event_id: stagedPlan.event_id,
-          activity: pick<string>(item, ['activity']) ?? '',
-          start_time: pick<string>(item, ['start_time', 'time']) ?? '10:00',
-          end_time: pick<string>(item, ['end_time']) ?? null,
-          description: pick<string>(item, ['description']) ?? null,
-          sort_order: idx + 1,
-        };
-      });
+    // Insert schedule items
+    if (Array.isArray(planData.eventDaySchedule)) {
+      const scheduleRows = (planData.eventDaySchedule as any[]).map((item: any, idx: number) => ({
+        event_id: event.id,
+        activity: item.activity ?? '',
+        start_time: item.start_time ?? '10:00',
+        end_time: item.end_time ?? null,
+        description: item.description ?? null,
+        sort_order: idx + 1,
+      }));
 
-      const { data: insertedSchedule } = await auth.supabase
+      const { data: insertedSchedule, error: scheduleError } = await auth.supabase
         .from('event_schedule_items')
         .insert(scheduleRows)
         .select('id');
-      scheduleItemsCreated = insertedSchedule ? insertedSchedule.length : 0;
+
+      scheduleItemsInserted = Array.isArray(insertedSchedule) ? insertedSchedule.length : 0;
+      if (scheduleError) {
+        throw new Error(`Failed to insert schedule items: ${scheduleError.message}`);
+      }
     }
 
-    // 5. Create in-app notification
+    // Create in-app notification for successful import
     await auth.supabase.from('notifications').insert({
       user_id: auth.user.id,
-      event_id: stagedPlan.event_id,
+      event_id: event.id,
       type: 'ai_plan_accepted',
-      title: 'AI Plan Accepted',
-      message: `Successfully imported plan into "${event.name}". Added ${tasksCreated} tasks, ${milestonesCreated} milestones, ${categoriesCreated} budget categories, and ${scheduleItemsCreated} schedule items.`,
+      title: `Plan imported successfully`,
+      message: `Successfully imported plan into "${event.name}". Added ${tasksInserted} tasks, ${milestonesInserted} milestones, ${categoriesInserted} budget categories, and ${scheduleItemsInserted} schedule items.`,
       is_read: false,
     });
 
-    // 6. Update plan status to 'Accepted'
+    // Update plan status to Accepted
     await auth.supabase
       .from('ai_generated_plans')
       .update({ status: 'Accepted' })
       .eq('id', planId)
-      .eq('user_id', auth.user.id);
+      .eq('event_id', event.id);
 
     return apiSuccess(
       {
-        tasksCreated,
-        milestonesCreated,
-        categoriesCreated,
-        scheduleItemsCreated,
+        tasksCreated: tasksInserted,
+        milestonesCreated: milestonesInserted,
+        categoriesCreated: categoriesInserted,
+        scheduleItemsCreated: scheduleItemsInserted,
       },
       201
     );
@@ -194,4 +173,3 @@ export async function POST(
     return serverError('Unexpected error accepting plan.', message);
   }
 }
-

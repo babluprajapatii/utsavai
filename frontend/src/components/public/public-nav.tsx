@@ -34,7 +34,7 @@ export function PublicNav() {
           <button
             type="button"
             onClick={() => go("home")}
-            className="flex items-center"
+            className="flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="UtsavAI home"
           >
             <Logo />
@@ -49,8 +49,9 @@ export function PublicNav() {
                 key={item.label}
                 type="button"
                 onClick={() => go(item.view)}
+                aria-current={currentView === item.view ? "page" : undefined}
                 className={cn(
-                  "px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  "px-3 py-2 text-sm font-medium rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   currentView === item.view
                     ? "text-primary bg-primary/5"
                     : "text-foreground/80 hover:text-foreground hover:bg-secondary/60"
@@ -79,25 +80,29 @@ export function PublicNav() {
 
             <button
               type="button"
-              className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-md text-foreground hover:bg-secondary"
+              className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-md text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => setOpen((o) => !o)}
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
             >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
             </button>
           </div>
         </div>
 
         {open && (
-          <div className="md:hidden border-t border-border py-4 space-y-1">
+          <nav
+            aria-label="Mobile navigation"
+            className="md:hidden border-t border-border py-4 space-y-1"
+          >
             {navItems.map((item) => (
               <button
                 key={item.label}
                 type="button"
                 onClick={() => go(item.view)}
+                aria-current={currentView === item.view ? "page" : undefined}
                 className={cn(
-                  "block w-full text-left px-3 py-2.5 text-sm font-medium rounded-md",
+                  "block w-full text-left px-3 py-2.5 text-sm font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   currentView === item.view
                     ? "text-primary bg-primary/5"
                     : "text-foreground hover:bg-secondary"
@@ -118,7 +123,7 @@ export function PublicNav() {
                 Start Planning
               </Button>
             </div>
-          </div>
+          </nav>
         )}
       </div>
     </header>

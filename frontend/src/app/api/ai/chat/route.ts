@@ -9,6 +9,7 @@ import {
   apiError,
 } from '@/lib/api/response';
 import { aiChatSchema } from '@/lib/api/validation';
+import { checkRateLimit } from '@/lib/api/rate-limit';
 import {
   isGeminiConfigured,
   callGeminiApi,
@@ -23,6 +24,20 @@ export async function POST(request: NextRequest) {
     const auth = await getAuthContext();
     if (!auth) {
       return unauthorized();
+    }
+
+    // 1b. Rate limiting check (20 requests per minute per user)
+    const rateLimit = await checkRateLimit(`ai:chat:${auth.user.id}`, {
+      maxRequests: 20,
+      windowSeconds: 60,
+    });
+    if (!rateLimit.allowed) {
+      return apiError(
+        'RATE_LIMITED',
+        'Rate limit exceeded. Please wait a moment before sending more messages.',
+        429,
+        { retryAfter: rateLimit.resetInSeconds }
+      );
     }
 
     // 2. Validate request body

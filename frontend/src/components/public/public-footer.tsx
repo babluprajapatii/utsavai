@@ -45,16 +45,16 @@ export function PublicFooter() {
           </div>
           {footerSections.map((section) => (
             <div key={section.title} className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/70">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground/70">
                 {section.title}
-              </p>
+              </h3>
               <ul className="space-y-2">
                 {section.links.map((link) => (
                   <li key={link.label}>
                     <button
                       type="button"
                       onClick={() => navigate({ kind: "public", view: link.view })}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
                     >
                       {link.label}
                     </button>
@@ -64,9 +64,9 @@ export function PublicFooter() {
             </div>
           ))}
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/70">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground/70">
               Made for celebrations
-            </p>
+            </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Weddings, birthdays, community events, family celebrations, and
               custom occasions.
@@ -75,14 +75,14 @@ export function PublicFooter() {
               <button
                 type="button"
                 onClick={() => navigate({ kind: "public", view: "features" })}
-                className="text-left hover:text-foreground transition-colors cursor-pointer"
+                className="text-left hover:text-foreground transition-colors cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
               >
                 Budget, Tasks &amp; Vendor Tools →
               </button>
               <button
                 type="button"
                 onClick={() => navigate({ kind: "public", view: "faq" })}
-                className="text-left hover:text-foreground transition-colors cursor-pointer"
+                className="text-left hover:text-foreground transition-colors cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
               >
                 Celebration Planning FAQs →
               </button>
@@ -97,14 +97,14 @@ export function PublicFooter() {
             <button
               type="button"
               onClick={() => navigate({ kind: "public", view: "privacy" })}
-              className="hover:text-foreground transition-colors"
+              className="hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
             >
               Privacy
             </button>
             <button
               type="button"
               onClick={() => navigate({ kind: "public", view: "terms" })}
-              className="hover:text-foreground transition-colors"
+              className="hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
             >
               Terms
             </button>

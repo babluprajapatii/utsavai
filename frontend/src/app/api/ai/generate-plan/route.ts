@@ -9,6 +9,7 @@ import {
   apiError,
 } from '@/lib/api/response';
 import { generatePlanSchema } from '@/lib/api/validation';
+import { checkRateLimit } from '@/lib/api/rate-limit';
 import {
   isGeminiConfigured,
   callGeminiApi,
@@ -28,6 +29,20 @@ export async function POST(request: NextRequest) {
     const auth = await getAuthContext();
     if (!auth) {
       return unauthorized();
+    }
+
+    // 1b. Rate limiting check (5 plan generations per minute per user)
+    const rateLimit = await checkRateLimit(`ai:plan:${auth.user.id}`, {
+      maxRequests: 5,
+      windowSeconds: 60,
+    });
+    if (!rateLimit.allowed) {
+      return apiError(
+        'RATE_LIMITED',
+        'Rate limit exceeded. Please wait a moment before generating another plan.',
+        429,
+        { retryAfter: rateLimit.resetInSeconds }
+      );
     }
 
     // 2. Validate request body

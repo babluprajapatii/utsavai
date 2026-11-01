@@ -288,12 +288,51 @@ export const generatePlanSchema = z.object({
   event_id: z.string().uuid('Valid event UUID required'),
 });
 
+export const acceptedPlanTaskSchema = z.object({
+  title: z.string().trim().min(1, 'Task title is required').max(300),
+  description: z.string().trim().max(1000).nullable().optional(),
+  category: z.string().trim().max(100).nullable().optional(),
+  priority: z.preprocess(normalizeTaskPriorityInput, z.enum(taskPriorities)).optional(),
+  due_date: z.string().regex(dateRegex, 'Invalid due date format').nullable().optional(),
+  suggested_due_date: z.string().regex(dateRegex, 'Invalid due date format').nullable().optional(),
+  suggestedDueDate: z.string().regex(dateRegex, 'Invalid due date format').nullable().optional(),
+}).passthrough();
+
+export const acceptedPlanMilestoneSchema = z.object({
+  title: z.string().trim().min(1, 'Milestone title is required').max(200),
+  description: z.string().trim().max(1000).nullable().optional(),
+  milestone_date: z.string().regex(dateRegex, 'Invalid milestone date format').nullable().optional(),
+  suggested_date: z.string().regex(dateRegex, 'Invalid milestone date format').nullable().optional(),
+  suggestedDate: z.string().regex(dateRegex, 'Invalid milestone date format').nullable().optional(),
+  date: z.string().regex(dateRegex, 'Invalid date format').nullable().optional(),
+}).passthrough();
+
+export const acceptedPlanScheduleItemSchema = z.object({
+  activity: z.string().trim().min(1, 'Activity name is required').max(200),
+  description: z.string().trim().max(1000).nullable().optional(),
+  start_time: z.string().regex(timeRegex, 'Invalid start time format').nullable().optional(),
+  time: z.string().regex(timeRegex, 'Invalid time format').nullable().optional(),
+  end_time: z.string().regex(timeRegex, 'Invalid end time format').nullable().optional(),
+  sort_order: z.number().int().optional(),
+}).passthrough();
+
+export const acceptedPlanBudgetCategorySchema = z.object({
+  name: z.string().trim().max(100).optional(),
+  category: z.string().trim().max(100).optional(),
+  planned_amount: z.number().min(0).optional(),
+  suggested_amount: z.number().min(0).optional(),
+  suggestedAmount: z.number().min(0).optional(),
+}).passthrough();
+
 export const acceptPlanSchema = z.object({
   event_id: z.string().uuid('Valid event UUID required'),
-  tasks: z.array(z.any()).optional(),
-  milestones: z.array(z.any()).optional(),
-  eventDaySchedule: z.array(z.any()).optional(),
-});
+  tasks: z.array(acceptedPlanTaskSchema).optional(),
+  milestones: z.array(acceptedPlanMilestoneSchema).optional(),
+  eventDaySchedule: z.array(acceptedPlanScheduleItemSchema).optional(),
+  event_day_schedule: z.array(acceptedPlanScheduleItemSchema).optional(),
+  budgetCategories: z.array(acceptedPlanBudgetCategorySchema).optional(),
+  budget_categories: z.array(acceptedPlanBudgetCategorySchema).optional(),
+}).passthrough();
 
 export const aiChatSchema = z.object({
   event_id: z.string().uuid('Valid event UUID required'),

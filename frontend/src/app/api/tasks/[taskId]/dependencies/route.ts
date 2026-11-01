@@ -90,7 +90,9 @@ export async function POST(
       return badRequest('Prerequisite task not found.');
     }
 
-    if (prereq.event_id !== task.event_id) {
+    const prereqEventId = (prereq as unknown as { event_id: string }).event_id;
+    const taskEventId = (task as unknown as { event_id: string }).event_id;
+    if (prereqEventId !== taskEventId) {
       return badRequest('Dependencies can only be created between tasks in the same event.');
     }
 

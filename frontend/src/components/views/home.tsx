@@ -189,7 +189,7 @@ export function HomeView() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <PublicNav />
-      <main className="flex-1">
+      <main className="flex-1" id="main-content" tabIndex={-1}>
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-border">
           <div className="absolute inset-0 paper-texture opacity-60" aria-hidden="true" />
@@ -215,7 +215,7 @@ export function HomeView() {
                     onClick={() => navigate({ kind: "public", view: "register" })}
                   >
                     Start Planning
-                    <ArrowRight className="h-4 w-4 ml-1.5" />
+                    <ArrowRight className="h-4 w-4 ml-1.5" aria-hidden="true" />
                   </Button>
                   <Button
                     size="lg"
@@ -230,15 +230,15 @@ export function HomeView() {
                 </div>
                 <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-success" style={{ color: "oklch(0.55 0.12 150)" }} />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-success" aria-hidden="true" />
                     No vendor lock-in
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5" style={{ color: "oklch(0.55 0.12 150)" }} />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-success" aria-hidden="true" />
                     Works on mobile
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5" style={{ color: "oklch(0.55 0.12 150)" }} />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-success" aria-hidden="true" />
                     AI plan generation
                   </span>
                 </div>
@@ -328,7 +328,7 @@ export function HomeView() {
               <button
                 type="button"
                 onClick={() => navigate({ kind: "public", view: "features" })}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="Explore all features and workflows"
               >
                 Explore all features and workflows
@@ -386,7 +386,7 @@ export function HomeView() {
             <div className="grid gap-10 lg:grid-cols-2 items-center">
               <div className="space-y-5 max-w-xl">
                 <div className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground">
-                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                  <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                   AI planning assistant
                 </div>
                 <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground font-display">
@@ -398,15 +398,15 @@ export function HomeView() {
                 </p>
                 <ul className="space-y-2 text-sm text-foreground/80">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "oklch(0.55 0.12 150)" }} />
+                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-success" aria-hidden="true" />
                     <span>Real-time event context included in every answer.</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "oklch(0.55 0.12 150)" }} />
+                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-success" aria-hidden="true" />
                     <span>Actionable prompts for weddings, birthdays, and community festivals.</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" style={{ color: "oklch(0.55 0.12 150)" }} />
+                    <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-success" aria-hidden="true" />
                     <span>Transparent, clearly marked AI-generated recommendations.</span>
                   </li>
                 </ul>
@@ -415,7 +415,7 @@ export function HomeView() {
                   onClick={() => navigate({ kind: "public", view: "register" })}
                 >
                   Try the assistant
-                  <ArrowRight className="h-4 w-4 ml-1.5" />
+                  <ArrowRight className="h-4 w-4 ml-1.5" aria-hidden="true" />
                 </Button>
               </div>
 
@@ -429,7 +429,7 @@ export function HomeView() {
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
             <div className="space-y-3 mb-10 text-center">
               <div className="inline-flex items-center gap-2 text-primary">
-                <HelpCircle className="h-4 w-4" />
+                <HelpCircle className="h-4 w-4" aria-hidden="true" />
                 <span className="text-xs font-medium uppercase tracking-wider">
                   Frequently asked
                 </span>
@@ -458,7 +458,7 @@ export function HomeView() {
               <button
                 type="button"
                 onClick={() => navigate({ kind: "public", view: "faq" })}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="View all frequently asked questions"
               >
                 Have more questions? Browse all FAQs
@@ -469,15 +469,15 @@ export function HomeView() {
         </section>
 
         {/* Final CTA */}
-        <section className="py-16 sm:py-20 bg-foreground text-background">
+        <section className="py-16 sm:py-20 bg-neutral-900 text-neutral-100 dark:bg-neutral-950 dark:text-neutral-100">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
             <div className="flex justify-center mb-6">
               <Logo variant="light" size={36} />
             </div>
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight font-display max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight font-display max-w-2xl mx-auto text-white">
               Start planning your next celebration today.
             </h2>
-            <p className="mt-3 text-base text-background/70 max-w-xl mx-auto leading-relaxed">
+            <p className="mt-3 text-base text-neutral-300 max-w-xl mx-auto leading-relaxed">
               Create your first event in minutes. Generate a plan, manage your
               budget, track your tasks, and stay organized until event day.
             </p>
@@ -486,15 +486,16 @@ export function HomeView() {
                 size="lg"
                 variant="secondary"
                 onClick={() => navigate({ kind: "public", view: "register" })}
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 Start Planning
-                <ArrowRight className="h-4 w-4 ml-1.5" />
+                <ArrowRight className="h-4 w-4 ml-1.5" aria-hidden="true" />
               </Button>
               <Button
                 size="lg"
                 variant="ghost"
                 onClick={() => navigate({ kind: "public", view: "login" })}
-                className="text-background hover:text-background hover:bg-background/10"
+                className="text-neutral-100 hover:text-white hover:bg-white/10"
               >
                 Login
               </Button>

@@ -117,7 +117,7 @@ export function LoginView() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <PublicNav />
-      <main className="flex-1 flex items-center justify-center px-4 py-12 sm:py-16">
+      <main className="flex-1 flex items-center justify-center px-4 py-12 sm:py-16" id="main-content" tabIndex={-1}>
         <div className="w-full max-w-md">
           <div className="text-center space-y-3 mb-8">
             <div className="flex justify-center">
@@ -133,15 +133,15 @@ export function LoginView() {
 
           <Card className="p-6 sm:p-8 gap-0">
             {formNotice && (
-              <Alert variant={formNotice.variant} className="mb-4">
+              <Alert variant={formNotice.variant} className="mb-4" aria-live="assertive">
                 {formNotice.variant === "success" ? (
-                  <CheckCircle2 className="h-4 w-4" />
+                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                 ) : formNotice.variant === "error" ? (
-                  <AlertCircle className="h-4 w-4" />
+                  <AlertCircle className="h-4 w-4" aria-hidden="true" />
                 ) : formNotice.variant === "warning" ? (
-                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                 ) : (
-                  <Info className="h-4 w-4" />
+                  <Info className="h-4 w-4" aria-hidden="true" />
                 )}
                 <AlertDescription>{formNotice.message}</AlertDescription>
               </Alert>
@@ -169,7 +169,7 @@ export function LoginView() {
                   />
                 </div>
                 {errors.email && (
-                  <p id="email-error" className="text-xs text-destructive" style={{ color: "oklch(0.55 0.18 25)" }}>
+                  <p id="email-error" role="alert" aria-live="polite" className="text-xs text-destructive" style={{ color: "oklch(0.55 0.18 25)" }}>
                     {errors.email}
                   </p>
                 )}
@@ -180,7 +180,7 @@ export function LoginView() {
                   <Label htmlFor="password">Password</Label>
                   <button
                     type="button"
-                    className="text-xs text-primary hover:underline"
+                    className="text-xs text-primary hover:underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     onClick={() => setFormNotice({ variant: "info", message: "Password reset functionality is not currently available. Please contact support if you need assistance." })}
                   >
                     Forgot password?
@@ -206,14 +206,14 @@ export function LoginView() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p id="password-error" className="text-xs text-destructive" style={{ color: "oklch(0.55 0.18 25)" }}>
+                  <p id="password-error" role="alert" aria-live="polite" className="text-xs text-destructive" style={{ color: "oklch(0.55 0.18 25)" }}>
                     {errors.password}
                   </p>
                 )}
@@ -233,13 +233,13 @@ export function LoginView() {
               <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting ? (
                   <>
-                    <span className="h-3.5 w-3.5 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
+                    <span className="h-3.5 w-3.5 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" aria-hidden="true" />
                     Logging in...
                   </>
                 ) : (
                   <>
                     Login
-                    <ArrowRight className="h-4 w-4 ml-1.5" />
+                    <ArrowRight className="h-4 w-4 ml-1.5" aria-hidden="true" />
                   </>
                 )}
               </Button>
@@ -270,7 +270,7 @@ export function LoginView() {
               <button
                 type="button"
                 onClick={() => navigate({ kind: "public", view: "register" })}
-                className="font-medium text-primary hover:underline"
+                className="font-medium text-primary hover:underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 Create an account
               </button>

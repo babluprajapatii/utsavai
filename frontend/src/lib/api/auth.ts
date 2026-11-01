@@ -55,6 +55,38 @@ export async function verifyEventOwnership(
 }
 
 /**
+ * Generic ownership verifier for child resources (tasks, expenses, vendors,
+ * guests, milestones, schedule items, budget categories).
+ *
+ * Uses a foreign-key join through `events!inner(user_id)` so the ownership
+ * check is enforced at the database level in a single query. Returns the
+ * resource row if it belongs to the authenticated user, otherwise null.
+ */
+async function verifyChildOwnership(
+  supabase: SupabaseClient<Database>,
+  resourceId: string,
+  tableName: keyof Database['public']['Tables'],
+  userId: string
+) {
+  const { data, error } = await supabase
+    .from(tableName)
+    .select('*, events!inner(user_id)')
+    .eq('id', resourceId)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  const parentEvent = (data as unknown as { events: { user_id: string } | null }).events;
+  if (!parentEvent || parentEvent.user_id !== userId) {
+    return null;
+  }
+
+  return data;
+}
+
+/**
  * Verifies that a task belongs to an event owned by the authenticated user.
  */
 export async function verifyTaskOwnership(
@@ -62,22 +94,7 @@ export async function verifyTaskOwnership(
   taskId: string,
   userId: string
 ) {
-  const { data: task, error } = await supabase
-    .from('tasks')
-    .select('*, events!inner(user_id)')
-    .eq('id', taskId)
-    .single();
-
-  if (error || !task) {
-    return null;
-  }
-
-  const parentEvent = task.events as unknown as { user_id: string } | null;
-  if (!parentEvent || parentEvent.user_id !== userId) {
-    return null;
-  }
-
-  return task;
+  return await verifyChildOwnership(supabase, taskId, 'tasks', userId);
 }
 
 /**
@@ -88,22 +105,7 @@ export async function verifyExpenseOwnership(
   expenseId: string,
   userId: string
 ) {
-  const { data: expense, error } = await supabase
-    .from('expenses')
-    .select('*, events!inner(user_id)')
-    .eq('id', expenseId)
-    .single();
-
-  if (error || !expense) {
-    return null;
-  }
-
-  const parentEvent = expense.events as unknown as { user_id: string } | null;
-  if (!parentEvent || parentEvent.user_id !== userId) {
-    return null;
-  }
-
-  return expense;
+  return await verifyChildOwnership(supabase, expenseId, 'expenses', userId);
 }
 
 /**
@@ -114,22 +116,7 @@ export async function verifyVendorOwnership(
   vendorId: string,
   userId: string
 ) {
-  const { data: vendor, error } = await supabase
-    .from('vendors')
-    .select('*, events!inner(user_id)')
-    .eq('id', vendorId)
-    .single();
-
-  if (error || !vendor) {
-    return null;
-  }
-
-  const parentEvent = vendor.events as unknown as { user_id: string } | null;
-  if (!parentEvent || parentEvent.user_id !== userId) {
-    return null;
-  }
-
-  return vendor;
+  return await verifyChildOwnership(supabase, vendorId, 'vendors', userId);
 }
 
 /**
@@ -140,22 +127,7 @@ export async function verifyGuestOwnership(
   guestId: string,
   userId: string
 ) {
-  const { data: guest, error } = await supabase
-    .from('guests')
-    .select('*, events!inner(user_id)')
-    .eq('id', guestId)
-    .single();
-
-  if (error || !guest) {
-    return null;
-  }
-
-  const parentEvent = guest.events as unknown as { user_id: string } | null;
-  if (!parentEvent || parentEvent.user_id !== userId) {
-    return null;
-  }
-
-  return guest;
+  return await verifyChildOwnership(supabase, guestId, 'guests', userId);
 }
 
 /**
@@ -166,22 +138,7 @@ export async function verifyMilestoneOwnership(
   milestoneId: string,
   userId: string
 ) {
-  const { data: milestone, error } = await supabase
-    .from('event_milestones')
-    .select('*, events!inner(user_id)')
-    .eq('id', milestoneId)
-    .single();
-
-  if (error || !milestone) {
-    return null;
-  }
-
-  const parentEvent = milestone.events as unknown as { user_id: string } | null;
-  if (!parentEvent || parentEvent.user_id !== userId) {
-    return null;
-  }
-
-  return milestone;
+  return await verifyChildOwnership(supabase, milestoneId, 'event_milestones', userId);
 }
 
 /**
@@ -192,22 +149,7 @@ export async function verifyScheduleOwnership(
   scheduleId: string,
   userId: string
 ) {
-  const { data: scheduleItem, error } = await supabase
-    .from('event_schedule_items')
-    .select('*, events!inner(user_id)')
-    .eq('id', scheduleId)
-    .single();
-
-  if (error || !scheduleItem) {
-    return null;
-  }
-
-  const parentEvent = scheduleItem.events as unknown as { user_id: string } | null;
-  if (!parentEvent || parentEvent.user_id !== userId) {
-    return null;
-  }
-
-  return scheduleItem;
+  return await verifyChildOwnership(supabase, scheduleId, 'event_schedule_items', userId);
 }
 
 /**
@@ -218,20 +160,5 @@ export async function verifyCategoryOwnership(
   categoryId: string,
   userId: string
 ) {
-  const { data: category, error } = await supabase
-    .from('budget_categories')
-    .select('*, events!inner(user_id)')
-    .eq('id', categoryId)
-    .single();
-
-  if (error || !category) {
-    return null;
-  }
-
-  const parentEvent = category.events as unknown as { user_id: string } | null;
-  if (!parentEvent || parentEvent.user_id !== userId) {
-    return null;
-  }
-
-  return category;
+  return await verifyChildOwnership(supabase, categoryId, 'budget_categories', userId);
 }

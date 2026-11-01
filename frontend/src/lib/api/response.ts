@@ -97,6 +97,9 @@ export function conflict(message = 'Resource conflict.') {
 
 export function serverError(message = 'An unexpected server error occurred.', details?: unknown) {
   console.error('[serverError]', message, details ?? '');
-  return apiError(ErrorCodes.INTERNAL_ERROR, message, 500, details);
+  // Sanitize internal details (database schema, query errors, stack) in production
+  const isProduction = process.env.NODE_ENV === 'production';
+  const clientDetails = isProduction ? undefined : details;
+  return apiError(ErrorCodes.INTERNAL_ERROR, message, 500, clientDetails);
 }
 
