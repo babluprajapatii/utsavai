@@ -12,82 +12,80 @@ const sections = [
     title: "1. Overview",
     body: [
       "This Privacy Policy explains how UtsavAI handles information when you use our event planning platform. UtsavAI helps you plan weddings, birthdays, community events, family celebrations, and custom occasions by managing budget, tasks, timeline, vendors, guests, and an AI planning assistant.",
-      "This is a frontend demonstration of the UtsavAI interface. The current deployment runs entirely in your browser: there is no live backend, no account database, and no server-side storage of your information. The events, tasks, vendors, guests, expenses, and other data you see are realistic demo data built into the application.",
-      "When UtsavAI is connected to a production backend in a future deployment, this policy will be updated to describe what data is collected, how it is stored, who can access it, and how long it is retained.",
+      "When you create an account, your event planning data is stored securely in our cloud database (Supabase PostgreSQL), protected by Row Level Security (RLS) tied to your authenticated user account so your plans are preserved across sessions.",
     ],
   },
   {
     id: "information-types",
-    title: "2. Information in this demonstration",
+    title: "2. Information we collect & store",
     body: [
-      "While using this demonstration, the only inputs you may enter are: a name and email on the registration form, an email on the login form, and any free-text content you type into onboarding forms, event details, tasks, vendors, guests, expenses, schedule items, or AI assistant prompts.",
-      "All of this input is held only in your browser's local memory for the duration of your session. It is not transmitted to any server, not stored in any database, and not shared with any third party. When you close or refresh the browser tab, all session data is lost.",
-      "Authentication uses real Supabase Auth to verify user credentials securely. When you sign in or register, Supabase validates credentials against its authentication service and creates authenticated sessions.",
+      "Account Information: Your name, email address, and authentication credentials managed securely through Supabase Auth. Passwords are encrypted by Supabase and never stored in plaintext by UtsavAI.",
+      "Event Planning Data: Details you create to plan celebrations, including event names, dates, budget targets, expenses, checklist tasks, timeline milestones, vendor contacts, guest names, RSVPs, dietary preferences, and event-day schedules.",
+      "Preferences: Theme preferences (light, dark, or system) stored locally in your browser.",
     ],
   },
   {
     id: "ai-assistant",
-    title: "3. AI assistant interactions",
+    title: "3. AI assistant & planning interactions",
     body: [
-      "When you type a message into the UtsavAI planning assistant in this demonstration, the message is processed locally within the application. The assistant's response is generated using a fixed set of contextual rules based on the currently selected event and its tasks. No request is sent to an external AI service.",
-      "In a production deployment, assistant messages would be sent to an AI model provider along with relevant event context. That deployment would describe the provider, retention, and any logging practices here.",
-      "AI-generated content is always marked as such in the interface. It is intended as suggestions and drafts, not as verified facts or professional advice.",
+      "When you generate an event plan or chat with the AI assistant, our server constructs a focused context payload (event type, budget parameters, task summaries, guest counts) stripped of sensitive personal identifiers (such as guest phone numbers or email addresses) and sends it via encrypted HTTPS to Google Gemini (model gemini-1.5-flash).",
+      "API keys and database credentials are held strictly in server environment variables and are never transmitted to client browsers or AI prompts.",
+      "AI-generated content is clearly marked in the interface as drafts and recommendations. AI suggestions never mutate your authoritative database records without your explicit review and acceptance.",
     ],
   },
   {
     id: "cookies",
     title: "4. Cookies and local storage",
     body: [
-      "This demonstration uses local storage to remember your theme preference (light, dark, or system). No tracking cookies, advertising cookies, or analytics cookies are set.",
-      "If you prefer not to use local storage, you can disable it in your browser settings. The application will still function, defaulting to the system theme.",
+      "We use browser local storage to remember your chosen theme preference (light, dark, or system).",
+      "We use secure session cookies managed by Supabase to maintain your authenticated session across page loads. We do not use third-party tracking, advertising, or profiling cookies.",
     ],
   },
   {
     id: "third-parties",
     title: "5. Third-party services",
     body: [
-      "This demonstration does not integrate with any third-party analytics, advertising, or tracking services.",
-      "The login page includes a 'Continue with Google' option. Clicking it initiates Google OAuth via Supabase Auth, which redirects you to Google's authentication service for real identity verification.",
+      "Authentication: Handled via Supabase Auth. Google OAuth is available as an optional sign-in method, redirecting to Google's authentication servers for identity verification.",
+      "AI Processing: Server-to-server requests to the Google Gemini API for plan generation and conversational assistant queries.",
+      "We do not sell, rent, or trade your personal or event data to third-party advertisers or data brokers.",
     ],
   },
   {
     id: "children",
     title: "6. Children's privacy",
     body: [
-      "UtsavAI is intended for use by adults who are planning celebrations. The platform is not directed at children under the age of 16, and we do not knowingly collect information from children.",
-      "If you believe a child has provided information through a future production deployment of UtsavAI, please contact us so it can be removed.",
+      "UtsavAI is intended for adults who are planning celebrations. The platform is not directed at children under the age of 16, and we do not knowingly collect personal information from children.",
     ],
   },
   {
     id: "your-rights",
-    title: "7. Your rights",
+    title: "7. Your rights & data control",
     body: [
-      "Because this demonstration does not persist any data outside your browser, you have full control at all times. Refreshing the page or closing the tab clears everything you have entered.",
-      "In a production deployment, you would have the right to access, correct, export, or delete your personal data, subject to applicable laws such as the Information Technology Act, 2000 and applicable rules in India, or the General Data Protection Regulation (GDPR) in the European Union.",
+      "You have direct control over your event data. You can view, edit, export, or permanently delete your events, tasks, vendors, and guests at any time directly through the application interface.",
+      "Deleting an event permanently removes all related tasks, expenses, vendors, guests, schedule items, and milestones from the database.",
     ],
   },
   {
     id: "security",
-    title: "8. Security",
+    title: "8. Security measures",
     body: [
-      "This demonstration does not store any data server-side, so there is no server-side data to secure. Any data you enter exists only in your browser session.",
-      "When UtsavAI is deployed with a real backend, security measures would include encrypted password storage, transport-layer encryption (HTTPS), access controls, audit logging, and regular security review. Those measures would be described in detail here.",
+      "We protect your data using transport encryption (HTTPS / TLS 1.3), strict Content Security Policy (CSP), HTTP security headers, and Supabase Row Level Security (RLS) guaranteeing that queries are strictly isolated to your authenticated user account.",
+      "All API route inputs pass runtime Zod schema validation to guard against injection and malformed payloads.",
     ],
   },
   {
     id: "changes",
     title: "9. Changes to this policy",
     body: [
-      "We may update this Privacy Policy when UtsavAI is connected to a real backend, when new features are introduced, or when legal requirements change. Material changes will be communicated through a prominent notice in the application.",
-      "Continued use of UtsavAI after a change takes effect constitutes acceptance of the updated policy.",
+      "We may update this Privacy Policy as our services evolve. Material updates will be published on this page with an updated modification date.",
+      "Continued use of UtsavAI after a policy update takes effect constitutes acceptance of the updated terms.",
     ],
   },
   {
     id: "contact",
     title: "10. Contact",
     body: [
-      "If you have questions about this Privacy Policy or about how UtsavAI handles information, please reach out through the contact information on the About page.",
-      "For this demonstration, no contact email is configured. The contact details would be added here before the production launch.",
+      "If you have questions about this Privacy Policy or your data, please reach out to the UtsavAI team through the About page.",
     ],
   },
 ];
@@ -98,74 +96,60 @@ export function PrivacyView() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <PublicNav />
-      <main className="flex-1" id="main-content" tabIndex={-1}>
+
+      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         <section className="border-b border-border py-12 sm:py-16">
-          <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 space-y-4">
-            <div className="flex items-center gap-2 text-primary">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary mb-3">
               <Shield className="h-4 w-4" />
-              <span className="text-xs font-medium uppercase tracking-wider">
-                Legal
-              </span>
+              Legal &amp; Privacy
             </div>
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight font-display text-foreground">
               Privacy Policy
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Last updated: {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
-            </p>
-            <p className="text-base text-muted-foreground leading-relaxed">
-              This page explains what information UtsavAI handles and how it is treated. Please read it carefully before using the platform.
+            <p className="mt-3 text-base text-muted-foreground leading-relaxed">
+              How UtsavAI handles and protects information when you use our celebration planning workspace.
             </p>
           </div>
         </section>
 
         <section className="py-12 sm:py-16">
-          <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <div className="grid gap-8 lg:grid-cols-[200px_1fr]">
-              {/* Table of contents */}
-              <aside className="hidden lg:block">
-                <nav className="sticky top-24 space-y-1" aria-label="Privacy Policy sections">
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
-                    Contents
-                  </p>
-                  {sections.map((s) => (
-                    <a
-                      key={s.id}
-                      href={`#${s.id}`}
-                      className="block text-sm text-muted-foreground hover:text-foreground py-1"
-                    >
-                      {s.title}
-                    </a>
-                  ))}
-                </nav>
-              </aside>
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div className="space-y-10">
+              {sections.map((section) => (
+                <article key={section.id} id={section.id} className="space-y-3">
+                  <h2 className="text-xl font-semibold font-display text-foreground">
+                    {section.title}
+                  </h2>
+                  <div className="space-y-2 text-sm text-muted-foreground leading-relaxed">
+                    {section.body.map((p, i) => (
+                      <p key={i}>{p}</p>
+                    ))}
+                  </div>
+                </article>
+              ))}
 
-              <div className="space-y-10 min-w-0">
-                {sections.map((s) => (
-                  <section key={s.id} id={s.id} className="scroll-mt-24">
-                    <h2 className="text-xl font-semibold font-display text-foreground mb-3">
-                      {s.title}
-                    </h2>
-                    <div className="space-y-4">
-                      {s.body.map((para, i) => (
-                        <p key={i} className="text-sm text-foreground/80 leading-relaxed">
-                          {para}
-                        </p>
-                      ))}
-                    </div>
-                  </section>
-                ))}
-
-                <Card className="p-5 bg-secondary/40 border-dashed">
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    This Privacy Policy applies to the current demonstration deployment of UtsavAI. A production deployment with a real backend would update this document with specifics about data storage, processing, retention, and third-party integrations before launch.
-                  </p>
-                </Card>
-              </div>
+              <Card className="p-6 border-border bg-secondary/30 mt-8">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Related documents: review our{" "}
+                  <a
+                    href="#terms"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate({ kind: "public", view: "terms" });
+                    }}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Terms of Service
+                  </a>{" "}
+                  for details regarding service scope and user responsibilities.
+                </p>
+              </Card>
             </div>
           </div>
         </section>
       </main>
+
       <PublicFooter />
     </div>
   );

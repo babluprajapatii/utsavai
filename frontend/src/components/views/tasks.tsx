@@ -486,7 +486,7 @@ function TaskDialog({
       status: form.status,
       priority: form.priority,
       dueDate: form.dueDate,
-      category: form.category as any,
+      category: form.category as Task["category"],
       owner: form.owner.trim() || undefined,
     });
   };

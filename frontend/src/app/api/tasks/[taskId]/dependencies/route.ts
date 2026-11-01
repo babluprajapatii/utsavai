@@ -9,6 +9,7 @@ import {
   serverError,
 } from '@/lib/api/response';
 import { createDependencySchema } from '@/lib/api/validation';
+import { detectDependencyCycle, DependencyEdge } from '@/lib/calculations/tasks';
 
 export async function GET(
   _request: NextRequest,
@@ -81,7 +82,7 @@ export async function POST(
     const dependsOnId = parsed.data.depends_on_task_id;
 
     if (dependsOnId === taskId) {
-      return badRequest('A task cannot depend on itself.');
+      return conflict('A task cannot depend on itself.');
     }
 
     // Verify prerequisite task exists and belongs to the same event
@@ -96,16 +97,31 @@ export async function POST(
       return badRequest('Dependencies can only be created between tasks in the same event.');
     }
 
-    // Check for reverse dependency (direct circular check)
-    const { data: reverseDep } = await auth.supabase
-      .from('task_dependencies')
+    // Detect direct and indirect (multi-node) cycles across all tasks in this event
+    const { data: allEventTasks } = await auth.supabase
+      .from('tasks')
       .select('id')
-      .eq('task_id', dependsOnId)
-      .eq('depends_on_task_id', taskId)
-      .maybeSingle();
+      .eq('event_id', taskEventId);
 
-    if (reverseDep) {
-      return conflict('Circular dependency detected between these tasks.');
+    const eventTaskIds = (allEventTasks ?? []).map((t) => t.id);
+
+    const { data: existingDeps } = await auth.supabase
+      .from('task_dependencies')
+      .select('task_id, depends_on_task_id')
+      .in('task_id', eventTaskIds);
+
+    const edges: DependencyEdge[] = (existingDeps ?? []).map((d) => ({
+      taskId: d.task_id,
+      dependsOnTaskId: d.depends_on_task_id,
+    }));
+
+    const cycleCheck = detectDependencyCycle(edges, {
+      taskId,
+      dependsOnTaskId: dependsOnId,
+    });
+
+    if (cycleCheck.hasCycle) {
+      return conflict(cycleCheck.reason || 'Circular dependency detected between tasks.');
     }
 
     const { data: created, error } = await auth.supabase

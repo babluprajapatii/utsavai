@@ -2,17 +2,11 @@
 
 import { useState } from "react";
 import {
-  FileDown,
   Calendar,
-  IndianRupee,
-  ListChecks,
-  Store,
-  Users,
-  Clock,
   Check,
-  FileText,
+  Printer,
   CalendarPlus,
-  AlertCircle,
+  ArrowDownToLine,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,11 +18,20 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useAppStore } from "@/lib/store";
-import { eventTypeMeta } from "@/lib/mock-data";
+import {
+  CelebrationEvent,
+  Task,
+  Vendor,
+  Guest,
+  Expense,
+  TimelineMilestone,
+  ScheduleItem,
+  eventTypeMeta,
+} from "@/types/domain";
 import { formatINR, formatINRShort, formatDate, formatTime } from "@/lib/format";
 import { SectionHeading } from "@/components/shared/section-heading";
-import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { generateICS, downloadICSFile } from "@/lib/ics";
 
 export function ExportView() {
   const { toast } = useToast();
@@ -42,8 +45,8 @@ export function ExportView() {
   const schedule = useAppStore((s) => s.schedule);
 
   const event = events.find((e) => e.id === currentEventId);
-  const [exporting, setExporting] = useState<"pdf" | "ics" | null>(null);
-  const [done, setDone] = useState<"pdf" | "ics" | null>(null);
+  const [downloadingIcs, setDownloadingIcs] = useState(false);
+  const [doneAction, setDoneAction] = useState<"pdf" | "ics" | null>(null);
 
   if (!event) {
     return <div className="text-center py-20 text-muted-foreground">No event selected.</div>;
@@ -60,77 +63,88 @@ export function ExportView() {
   const completedTasks = eventTasks.filter((t) => t.status === "completed").length;
   const acceptedGuests = eventGuests.filter((g) => g.rsvp === "accepted").length;
 
-  const handleExport = (kind: "pdf" | "ics") => {
-    setExporting(kind);
-    setDone(null);
-    setTimeout(() => {
-      setExporting(null);
-      setDone(kind);
+  const handlePrintPdf = () => {
+    setDoneAction("pdf");
+    toast({
+      title: "Opening print dialog",
+      description: "You can print directly or select 'Save as PDF' from your browser's print destinations.",
+    });
+    if (typeof window !== "undefined") {
+      window.print();
+    }
+  };
+
+  const handleDownloadIcs = () => {
+    setDownloadingIcs(true);
+    try {
+      const icsData = generateICS(
+        {
+          id: event.id,
+          name: event.name,
+          description: event.specialRequirements || event.theme,
+          location: event.location,
+          date: event.date,
+          startTime: event.startTime,
+          endTime: event.endTime,
+        },
+        eventMilestones.map((m) => ({
+          id: m.id,
+          title: m.title,
+          description: m.description,
+          date: m.date,
+        }))
+      );
+
+      const filename = `${event.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "event"}-plan.ics`;
+      downloadICSFile(filename, icsData);
+
+      setDoneAction("ics");
       toast({
-        title: kind === "pdf" ? "PDF preview ready" : "Calendar preview ready",
-        description:
-          kind === "pdf"
-            ? "Preview shown below. File download is not available in this demo."
-            : "Preview shown below. File download is not available in this demo.",
+        title: "Calendar file downloaded",
+        description: `Saved ${filename}. Import this file into Google Calendar, Apple Calendar, or Outlook.`,
       });
-    }, 1500);
+    } catch {
+      toast({
+        title: "Calendar export failed",
+        description: "Could not generate calendar file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingIcs(false);
+    }
   };
 
   return (
     <div className="space-y-6">
-      <SectionHeading
-        eyebrow="Export"
-        title="Export your event plan"
-        description={`Preview ${event.name} as a PDF or calendar file. File download is not available in this demo.`}
-      />
+      <div className="print:hidden">
+        <SectionHeading
+          eyebrow="Export"
+          title="Export your event plan"
+          description={`Download ${event.name} as a calendar file or print/save as a PDF document.`}
+        />
+      </div>
 
       {/* Export options */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 print:hidden">
         <Card className="p-6 space-y-3 gap-0">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-md bg-primary/10 text-primary flex items-center justify-center">
-              <FileText className="h-5 w-5" />
+              <Printer className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-base font-semibold font-display text-foreground">PDF document</h3>
-              <p className="text-xs text-muted-foreground">Complete event summary</p>
+              <h3 className="text-base font-semibold font-display text-foreground">Print / Save as PDF</h3>
+              <p className="text-xs text-muted-foreground">Complete formatted event summary</p>
             </div>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Includes event summary, budget breakdown, tasks, timeline, vendors,
-            guests, and event-day schedule in a print-ready format.
-          </p>
-          <p
-            className="text-xs rounded-md p-2 border"
-            style={{
-              backgroundColor: "oklch(0.65 0.13 70 / 0.08)",
-              borderColor: "oklch(0.65 0.13 70 / 0.2)",
-              color: "oklch(0.40 0.08 60)",
-            }}
-          >
-            Demo only: file download is not available. Preview shown below.
+            Formats your complete celebration plan (summary, budget, tasks, timeline, vendors, guests, schedule) for clean printing or saving to PDF via your browser.
           </p>
           <Button
-            onClick={() => handleExport("pdf")}
-            disabled={exporting !== null}
+            onClick={handlePrintPdf}
             className="w-full"
           >
-            {exporting === "pdf" ? (
-              <>
-                <span className="h-3.5 w-3.5 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
-                Preparing preview...
-              </>
-            ) : done === "pdf" ? (
-              <>
-                <Check className="h-4 w-4 mr-1.5" />
-                Preview ready
-              </>
-            ) : (
-              <>
-                <FileDown className="h-4 w-4 mr-1.5" />
-                Preview PDF
-              </>
-            )}
+            <Printer className="h-4 w-4 mr-1.5" />
+            Print or Save as PDF
           </Button>
         </Card>
 
@@ -140,53 +154,37 @@ export function ExportView() {
               <CalendarPlus className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-base font-semibold font-display text-foreground">Calendar file</h3>
-              <p className="text-xs text-muted-foreground">.ics for calendar apps</p>
+              <h3 className="text-base font-semibold font-display text-foreground">Calendar file (.ics)</h3>
+              <p className="text-xs text-muted-foreground">Standard RFC 5545 calendar export</p>
             </div>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Adds the event and key milestones to Google Calendar, Apple
-            Calendar, Outlook, or any calendar app that supports the .ics format.
-          </p>
-          <p
-            className="text-xs rounded-md p-2 border"
-            style={{
-              backgroundColor: "oklch(0.65 0.13 70 / 0.08)",
-              borderColor: "oklch(0.65 0.13 70 / 0.2)",
-              color: "oklch(0.40 0.08 60)",
-            }}
-          >
-            Demo only: file download is not available. Preview shown below.
+            Downloads a standard calendar file containing your celebration event and all planning milestones for Google Calendar, Apple Calendar, or Outlook.
           </p>
           <Button
-            onClick={() => handleExport("ics")}
-            disabled={exporting !== null}
+            onClick={handleDownloadIcs}
+            disabled={downloadingIcs}
             variant="outline"
             className="w-full"
           >
-            {exporting === "ics" ? (
+            {downloadingIcs ? (
               <>
-                <span className="h-3.5 w-3.5 rounded-full border-2 border-foreground border-t-transparent animate-spin" />
-                Preparing preview...
-              </>
-            ) : done === "ics" ? (
-              <>
-                <Check className="h-4 w-4 mr-1.5" />
-                Preview ready
+                <span className="h-3.5 w-3.5 rounded-full border-2 border-foreground border-t-transparent animate-spin mr-1.5" />
+                Generating .ics...
               </>
             ) : (
               <>
-                <Calendar className="h-4 w-4 mr-1.5" />
-                Preview .ics
+                <ArrowDownToLine className="h-4 w-4 mr-1.5" />
+                Download Calendar (.ics)
               </>
             )}
           </Button>
         </Card>
       </div>
 
-      {done && (
+      {doneAction && (
         <div
-          className="rounded-md p-4 border flex items-start gap-3"
+          className="rounded-md p-4 border flex items-start gap-3 print:hidden"
           style={{
             backgroundColor: "oklch(0.55 0.12 150 / 0.08)",
             borderColor: "oklch(0.55 0.12 150 / 0.25)",
@@ -197,11 +195,12 @@ export function ExportView() {
           <Check className="h-5 w-5 mt-0.5 shrink-0" />
           <div className="flex-1">
             <p className="font-semibold text-sm">
-              {done === "pdf" ? "PDF preview ready" : "Calendar preview ready"}
+              {doneAction === "pdf" ? "Print dialog opened" : "Calendar file downloaded"}
             </p>
             <p className="text-xs mt-1 opacity-90">
-              The preview below shows the data that would be included in the exported file.
-              File download is not available in this demo.
+              {doneAction === "pdf"
+                ? "Select 'Save as PDF' in the destination dropdown to save a digital copy, or select your printer."
+                : "Your .ics file has been downloaded and is ready to import into your calendar app."}
             </p>
           </div>
         </div>
@@ -209,12 +208,12 @@ export function ExportView() {
 
       {/* Preview */}
       <div className="space-y-3">
-        <h3 className="text-base font-semibold font-display text-foreground">
+        <h3 className="text-base font-semibold font-display text-foreground print:hidden">
           Export preview
         </h3>
-        <Card className="p-0 overflow-hidden">
+        <Card className="p-0 overflow-hidden print:border-none print:shadow-none">
           <Tabs defaultValue="summary">
-            <div className="border-b border-border px-4 py-2 overflow-x-auto">
+            <div className="border-b border-border px-4 py-2 overflow-x-auto print:hidden">
               <TabsList className="bg-transparent h-auto p-0 gap-1">
                 <TabsTrigger value="summary" className="text-xs px-3 py-1.5">Summary</TabsTrigger>
                 <TabsTrigger value="budget" className="text-xs px-3 py-1.5">Budget</TabsTrigger>
@@ -228,48 +227,60 @@ export function ExportView() {
 
             <TabsContent value="summary" className="p-6 m-0">
               <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div
-                    className="h-12 w-12 rounded-md flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: `${event.coverColor}18`, color: event.coverColor }}
-                  >
-                    <Calendar className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-semibold font-display text-foreground">{event.name}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {eventTypeMeta[event.type].label} - {formatDate(event.date, "long")}
-                    </p>
-                  </div>
+                <div>
+                  <h4 className="text-xl font-bold font-display text-foreground">{event.name}</h4>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    {eventTypeMeta[event.type]?.label} &bull; {formatDate(event.date, "long")}
+                  </p>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3 text-sm">
-                  <Detail label="Date" value={formatDate(event.date, "long")} />
-                  <Detail label="Time" value={`${event.startTime} - ${event.endTime}`} />
-                  <Detail label="Location" value={event.location} />
-                  <Detail label="Expected guests" value={String(event.expectedGuests)} />
-                  <Detail label="Total budget" value={formatINR(event.totalBudget)} />
-                  <Detail label="Total spent" value={formatINR(totalSpent)} />
-                  {event.theme && <Detail label="Theme" value={event.theme} />}
-                  {event.style && <Detail label="Style" value={event.style} />}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                  <StatBlock label="Budget" value={formatINRShort(event.totalBudget)} />
+                  <StatBlock label="Spent" value={formatINRShort(totalSpent)} />
+                  <StatBlock
+                    label="Tasks"
+                    value={`${completedTasks}/${eventTasks.length}`}
+                  />
+                  <StatBlock
+                    label="RSVPs"
+                    value={`${acceptedGuests}/${eventGuests.length}`}
+                  />
                 </div>
 
-                {event.priorities && event.priorities.length > 0 && (
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Priorities</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {event.priorities.map((p) => (
-                        <Badge key={p} variant="outline" className="text-xs">{p}</Badge>
-                      ))}
+                <div className="space-y-2 pt-2 text-sm">
+                  {event.location && (
+                    <div className="flex gap-2">
+                      <span className="text-muted-foreground w-28 shrink-0">Location:</span>
+                      <span className="text-foreground">{event.location}</span>
                     </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-border">
-                  <StatBlock label="Tasks" value={`${completedTasks}/${eventTasks.length}`} />
-                  <StatBlock label="Guests" value={`${acceptedGuests}/${eventGuests.length}`} />
-                  <StatBlock label="Vendors" value={`${eventVendors.length}`} />
-                  <StatBlock label="Schedule items" value={`${eventSchedule.length}`} />
+                  )}
+                  {event.startTime && (
+                    <div className="flex gap-2">
+                      <span className="text-muted-foreground w-28 shrink-0">Time:</span>
+                      <span className="text-foreground">
+                        {formatTime(event.startTime)}
+                        {event.endTime ? ` - ${formatTime(event.endTime)}` : ""}
+                      </span>
+                    </div>
+                  )}
+                  {event.theme && (
+                    <div className="flex gap-2">
+                      <span className="text-muted-foreground w-28 shrink-0">Theme:</span>
+                      <span className="text-foreground">{event.theme}</span>
+                    </div>
+                  )}
+                  {event.priorities && event.priorities.length > 0 && (
+                    <div className="flex gap-2">
+                      <span className="text-muted-foreground w-28 shrink-0">Priorities:</span>
+                      <div className="flex flex-wrap gap-1">
+                        {event.priorities.map((p) => (
+                          <Badge key={p} variant="secondary" className="text-xs font-normal">
+                            {p}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </TabsContent>
@@ -304,25 +315,16 @@ export function ExportView() {
   );
 }
 
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="text-sm font-medium text-foreground mt-0.5">{value}</p>
-    </div>
-  );
-}
-
 function StatBlock({ label, value }: { label: string; value: string }) {
   return (
-    <div className="p-3 rounded-md bg-secondary/50">
-      <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
+    <div className="p-3 rounded-md bg-secondary/50 border border-border">
+      <p className="text-xs text-muted-foreground">{label}</p>
       <p className="text-lg font-semibold font-display mt-0.5">{value}</p>
     </div>
   );
 }
 
-function ExportBudget({ expenses, totalBudget }: { expenses: any[]; totalBudget: number }) {
+function ExportBudget({ expenses, totalBudget }: { expenses: Expense[]; totalBudget: number }) {
   const totalSpent = expenses.reduce((s, e) => s + e.actualAmount, 0);
   return (
     <div className="space-y-3">
@@ -355,7 +357,7 @@ function ExportBudget({ expenses, totalBudget }: { expenses: any[]; totalBudget:
   );
 }
 
-function ExportTasks({ tasks }: { tasks: any[] }) {
+function ExportTasks({ tasks }: { tasks: Task[] }) {
   if (tasks.length === 0) return <p className="text-sm text-muted-foreground">No tasks.</p>;
   return (
     <div className="space-y-2">
@@ -382,7 +384,7 @@ function ExportTasks({ tasks }: { tasks: any[] }) {
   );
 }
 
-function ExportTimeline({ milestones }: { milestones: any[] }) {
+function ExportTimeline({ milestones }: { milestones: TimelineMilestone[] }) {
   if (milestones.length === 0) return <p className="text-sm text-muted-foreground">No milestones.</p>;
   return (
     <ol className="relative border-l-2 border-border pl-5 space-y-3">
@@ -397,7 +399,7 @@ function ExportTimeline({ milestones }: { milestones: any[] }) {
   );
 }
 
-function ExportVendors({ vendors }: { vendors: any[] }) {
+function ExportVendors({ vendors }: { vendors: Vendor[] }) {
   if (vendors.length === 0) return <p className="text-sm text-muted-foreground">No vendors.</p>;
   return (
     <div className="space-y-2">
@@ -414,7 +416,7 @@ function ExportVendors({ vendors }: { vendors: any[] }) {
   );
 }
 
-function ExportGuests({ guests }: { guests: any[] }) {
+function ExportGuests({ guests }: { guests: Guest[] }) {
   if (guests.length === 0) return <p className="text-sm text-muted-foreground">No guests.</p>;
   const accepted = guests.filter((g) => g.rsvp === "accepted").length;
   const pending = guests.filter((g) => g.rsvp === "pending").length;
@@ -442,7 +444,7 @@ function ExportGuests({ guests }: { guests: any[] }) {
   );
 }
 
-function ExportSchedule({ schedule }: { schedule: any[] }) {
+function ExportSchedule({ schedule }: { schedule: ScheduleItem[] }) {
   if (schedule.length === 0) return <p className="text-sm text-muted-foreground">No schedule items.</p>;
   return (
     <div className="space-y-2">

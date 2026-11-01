@@ -27,9 +27,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Logo } from "@/components/shared/logo";
 import { useAppStore, OnboardingView } from "@/lib/store";
-import { EventType, eventTypeMeta, BudgetCategory, TaskPriority } from "@/lib/mock-data";
+import { EventType, eventTypeMeta, BudgetCategory, TaskPriority, CelebrationEvent } from "@/types/domain";
 import { cn } from "@/lib/utils";
 import { formatINR, formatDate } from "@/lib/format";
+
+type OnboardingDraft = Partial<CelebrationEvent> & { priorities?: string[] };
 
 const eventTypeIcons: Record<EventType, typeof Heart> = {
   wedding: Heart,
@@ -408,8 +410,8 @@ function DetailsStep({
   onBack,
   onNext,
 }: {
-  draft: any;
-  setDraft: (p: any) => void;
+  draft: OnboardingDraft;
+  setDraft: (p: Partial<OnboardingDraft>) => void;
   onBack: () => void;
   onNext: () => void;
 }) {
@@ -661,8 +663,8 @@ function PreferencesStep({
   onBack,
   onNext,
 }: {
-  draft: any;
-  setDraft: (p: any) => void;
+  draft: OnboardingDraft;
+  setDraft: (p: Partial<OnboardingDraft>) => void;
   onBack: () => void;
   onNext: () => void;
 }) {
@@ -766,7 +768,7 @@ function GenerateStep({
   onNext,
   onRegenerate,
 }: {
-  draft: any;
+  draft: OnboardingDraft;
   onBack: () => void;
   onNext: () => void;
   onRegenerate: () => void;
@@ -899,7 +901,7 @@ function ReviewStep({
   onEdit,
   accepting,
 }: {
-  draft: any;
+  draft: OnboardingDraft;
   onBack: () => void;
   onAccept: () => void;
   onEdit: () => void;
@@ -1079,7 +1081,7 @@ function AiGeneratedBanner() {
   );
 }
 
-function generatePlanFromDraft(draft: any) {
+function generatePlanFromDraft(draft: OnboardingDraft) {
   const budget: { label: string; amount: number; category: BudgetCategory }[] = [];
   const total = draft.totalBudget ?? 100000;
   const splits: { label: string; pct: number; category: BudgetCategory }[] = [

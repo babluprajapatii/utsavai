@@ -180,9 +180,9 @@ export function AboutView() {
               Built to be connected, not locked in.
             </h2>
             <p className="text-base text-muted-foreground leading-relaxed">
-              This is a frontend showcase with realistic demo data. The product
-              is designed to connect to a Next.js backend, a database such as
-              Supabase, and an AI API. No vendor lock-in. Your data stays yours.
+              Built on Next.js, Supabase PostgreSQL, and Google Gemini AI.
+              Engineered with open architecture and standard data exports so your
+              celebration plans remain under your control. No vendor lock-in.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3">
               <Button

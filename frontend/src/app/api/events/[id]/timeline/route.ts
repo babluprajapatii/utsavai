@@ -8,6 +8,7 @@ import {
   serverError,
 } from '@/lib/api/response';
 import { createMilestoneSchema } from '@/lib/api/validation';
+import type { MilestoneStatus } from '@/types/database';
 
 export async function GET(
   request: NextRequest,
@@ -38,7 +39,7 @@ export async function GET(
       query = query.eq('milestone_date', date);
     }
     if (status) {
-      query = query.eq('status', status as any);
+      query = query.eq('status', status as MilestoneStatus);
     }
 
     const { data: milestones, error } = await query.order('milestone_date', {

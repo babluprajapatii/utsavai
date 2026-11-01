@@ -8,6 +8,7 @@ import {
   serverError,
 } from '@/lib/api/response';
 import { createGuestSchema, paginationQuerySchema } from '@/lib/api/validation';
+import type { GuestRsvpStatus } from '@/types/database';
 
 export async function GET(
   request: NextRequest,
@@ -44,7 +45,7 @@ export async function GET(
       .eq('event_id', id);
 
     if (rsvp) {
-      query = query.eq('rsvp_status', rsvp as any);
+      query = query.eq('rsvp_status', rsvp as GuestRsvpStatus);
     }
     if (groupName) {
       query = query.eq('group_name', groupName);

@@ -8,6 +8,36 @@ import {
   serverError,
 } from '@/lib/api/response';
 import { acceptPlanSchema } from '@/lib/api/validation';
+import type { TaskStatus, TaskPriority } from '@/types/database';
+
+interface RawPlanCategory {
+  name: string;
+  planned_amount?: number;
+}
+
+interface RawPlanTask {
+  title: string;
+  description?: string | null;
+  category?: string | null;
+  priority?: TaskPriority;
+  status?: TaskStatus;
+  suggested_due_date?: string | null;
+  due_date?: string | null;
+}
+
+interface RawPlanMilestone {
+  title: string;
+  milestone_date?: string | null;
+  suggested_date?: string | null;
+  description?: string | null;
+}
+
+interface RawPlanScheduleItem {
+  activity?: string;
+  start_time?: string;
+  end_time?: string | null;
+  description?: string | null;
+}
 
 export async function POST(
   request: NextRequest,
@@ -60,7 +90,7 @@ export async function POST(
 
     // Insert budget categories (idempotent via unique constraint on event_id+name)
     if (Array.isArray(planData.budgetCategories)) {
-      const categoryRows = (planData.budgetCategories as any[]).map((cat: any) => ({
+      const categoryRows = (planData.budgetCategories as RawPlanCategory[]).map((cat) => ({
         event_id: event.id,
         name: cat.name,
         planned_amount: cat.planned_amount ?? 0,
@@ -79,7 +109,7 @@ export async function POST(
 
     // Insert tasks
     if (Array.isArray(planData.tasks)) {
-      const taskRows = (planData.tasks as any[]).map((task: any) => ({
+      const taskRows = (planData.tasks as RawPlanTask[]).map((task) => ({
         event_id: event.id,
         title: task.title,
         description: task.description ?? null,
@@ -102,10 +132,10 @@ export async function POST(
 
     // Insert milestones
     if (Array.isArray(planData.milestones)) {
-      const milestoneRows = (planData.milestones as any[]).map((ms: any) => ({
+      const milestoneRows = (planData.milestones as RawPlanMilestone[]).map((ms) => ({
         event_id: event.id,
         title: ms.title,
-        milestone_date: ms.milestone_date ?? ms.suggested_date ?? null,
+        milestone_date: ms.milestone_date ?? ms.suggested_date ?? new Date().toISOString().slice(0, 10),
         description: ms.description ?? '',
       }));
 
@@ -122,7 +152,7 @@ export async function POST(
 
     // Insert schedule items
     if (Array.isArray(planData.eventDaySchedule)) {
-      const scheduleRows = (planData.eventDaySchedule as any[]).map((item: any, idx: number) => ({
+      const scheduleRows = (planData.eventDaySchedule as RawPlanScheduleItem[]).map((item, idx) => ({
         event_id: event.id,
         activity: item.activity ?? '',
         start_time: item.start_time ?? '10:00',

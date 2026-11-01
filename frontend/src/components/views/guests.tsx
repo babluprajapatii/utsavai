@@ -523,7 +523,7 @@ function GuestDialog({
               <Label htmlFor="g-meal">Meal preference</Label>
               <Select
                 value={form.mealPreference ?? ""}
-                onValueChange={(v) => setForm((p) => ({ ...p, mealPreference: v as any }))}
+                onValueChange={(v) => setForm((p) => ({ ...p, mealPreference: (v || undefined) as Guest["mealPreference"] }))}
               >
                 <SelectTrigger id="g-meal">
                   <SelectValue placeholder="None" />

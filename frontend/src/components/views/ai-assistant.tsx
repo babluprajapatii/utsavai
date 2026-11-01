@@ -17,7 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/lib/store";
-import { eventTypeMeta } from "@/lib/mock-data";
+import { eventTypeMeta } from "@/types/domain";
+import { calculateBudgetSummary } from "@/lib/calculations/budget";
 import { formatINR, formatINRShort, formatDate, daysUntil } from "@/lib/format";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -113,7 +114,7 @@ export function AiAssistantView() {
   }
 
   const days = daysUntil(event.date);
-  const totalSpent = eventExpenses.reduce((s, e) => s + e.actualAmount, 0);
+  const { totalSpent } = calculateBudgetSummary(event.totalBudget, eventExpenses);
   const overdueCount = eventTasks.filter(
     (t) => t.status !== "completed" && new Date(t.dueDate).getTime() < Date.now()
   ).length;
@@ -223,9 +224,9 @@ export function AiAssistantView() {
                 <div className="flex justify-start">
                   <div className="bg-secondary text-foreground border border-border rounded-md px-3.5 py-2.5">
                     <div className="flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-pulse" />
-                      <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-pulse" style={{ animationDelay: "0.2s" }} />
-                      <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-pulse" style={{ animationDelay: "0.4s" }} />
+                      <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-pulse motion-reduce:animate-none" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-pulse motion-reduce:animate-none" style={{ animationDelay: "0.2s" }} />
+                      <span className="h-1.5 w-1.5 rounded-full bg-foreground/60 animate-pulse motion-reduce:animate-none" style={{ animationDelay: "0.4s" }} />
                       <span className="text-xs text-muted-foreground ml-1">Thinking...</span>
                     </div>
                   </div>

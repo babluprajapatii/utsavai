@@ -21,7 +21,7 @@ const sections = [
     body: [
       "UtsavAI is a planning workspace for weddings, birthdays, community events, family celebrations, and custom occasions. It helps you organize budget, tasks, timeline, vendors, guests, an event-day schedule, and an AI planning assistant.",
       "UtsavAI is a planning and management tool, not a vendor marketplace. We do not sell products, book vendors on your behalf, or take payment for services rendered by third-party vendors. You research, negotiate, and book vendors on your own terms.",
-      "The current deployment is a frontend demonstration. It runs entirely in your browser and does not persist data to a server. Functionality that requires a backend, such as saving events across sessions or sharing plans with collaborators, is not available in this demonstration.",
+      "UtsavAI provides cloud database persistence for authenticated accounts, storing your events, budgets, tasks, vendors, and guests securely with multi-tenant Row Level Security in Supabase PostgreSQL so your planning state is preserved across sessions.",
     ],
   },
   {
@@ -47,7 +47,7 @@ const sections = [
     title: "5. Accounts and authentication",
     body: [
       "Authentication uses real Supabase Auth to verify user credentials securely. When you sign in, Supabase validates your email and password against its authentication service. New users can register and create accounts using Supabase's registration flow.",
-      "In a production deployment, you would be responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account. You would agree to notify us of any unauthorized use of your account.",
+      "You are responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account. You agree to notify us immediately of any unauthorized use of your account.",
     ],
   },
   {
@@ -87,7 +87,7 @@ const sections = [
     title: "10. Limitation of liability",
     body: [
       "To the maximum extent permitted by law, UtsavAI shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform, including but not limited to loss of profits, loss of data, missed deadlines, or vendor disputes.",
-      "UtsavAI's aggregate liability for any claim arising from these terms shall not exceed the amount you have paid us for the service in the twelve months preceding the claim. Since this demonstration is provided without charge, that amount is zero.",
+      "UtsavAI's aggregate liability for any claim arising from these terms shall not exceed the amount, if any, you have paid to UtsavAI for use of the platform in the twelve months preceding the claim.",
     ],
   },
   {
@@ -110,8 +110,7 @@ const sections = [
     id: "contact",
     title: "13. Contact",
     body: [
-      "If you have questions about these Terms and Conditions, please reach out through the contact information on the About page.",
-      "For this demonstration, no contact email is configured. Production contact details would be added here before launch.",
+      "If you have questions about these Terms and Conditions, please reach out to the UtsavAI team through the About page.",
     ],
   },
 ];

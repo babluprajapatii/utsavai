@@ -8,6 +8,7 @@ import {
   serverError,
 } from '@/lib/api/response';
 import { createTaskSchema, paginationQuerySchema } from '@/lib/api/validation';
+import type { TaskStatus, TaskPriority } from '@/types/database';
 
 export async function GET(
   request: NextRequest,
@@ -45,10 +46,10 @@ export async function GET(
       .eq('event_id', id);
 
     if (status) {
-      query = query.eq('status', status as any);
+      query = query.eq('status', status as TaskStatus);
     }
     if (priority) {
-      query = query.eq('priority', priority as any);
+      query = query.eq('priority', priority as TaskPriority);
     }
     if (dueBefore) {
       query = query.lte('due_date', dueBefore);

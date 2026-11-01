@@ -8,6 +8,7 @@ import {
   serverError,
 } from '@/lib/api/response';
 import { createVendorSchema, paginationQuerySchema } from '@/lib/api/validation';
+import type { VendorCategory, VendorStatus } from '@/types/database';
 
 export async function GET(
   request: NextRequest,
@@ -44,10 +45,10 @@ export async function GET(
       .eq('event_id', id);
 
     if (category) {
-      query = query.eq('category', category as any);
+      query = query.eq('category', category as VendorCategory);
     }
     if (status) {
-      query = query.eq('status', status as any);
+      query = query.eq('status', status as VendorStatus);
     }
 
     const { data: vendors, error, count } = await query

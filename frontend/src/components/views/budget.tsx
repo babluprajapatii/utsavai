@@ -17,7 +17,8 @@ import { useAppStore } from "@/lib/store";
 import {
   BudgetCategory,
   categoryMeta,
-} from "@/lib/mock-data";
+} from "@/types/domain";
+import { calculateBudgetSummary } from "@/lib/calculations/budget";
 import { formatINR, formatINRShort } from "@/lib/format";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { StatTile } from "@/components/shared/stat-tile";
@@ -61,9 +62,7 @@ export function BudgetView() {
 
   const totalPlanned = Object.values(categoryData).reduce((s, c) => s + c.planned, 0);
   const totalSpent = Object.values(categoryData).reduce((s, c) => s + c.spent, 0);
-  const remaining = event.totalBudget - totalSpent;
-  const utilization = event.totalBudget > 0 ? (totalSpent / event.totalBudget) * 100 : 0;
-  const overBudget = totalSpent > event.totalBudget;
+  const { remaining, utilization, isOverBudget: overBudget } = calculateBudgetSummary(event.totalBudget, totalSpent);
 
   // Sort categories by spent desc for chart
   const sortedCategories = (Object.keys(categoryData) as BudgetCategory[])

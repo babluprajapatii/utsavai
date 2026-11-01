@@ -25,7 +25,8 @@ import {
   daysUntil,
   relativeTime,
 } from "@/lib/format";
-import { eventTypeMeta } from "@/lib/mock-data";
+import { eventTypeMeta } from "@/types/domain";
+import { calculateBudgetSummary } from "@/lib/calculations/budget";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { StatTile } from "@/components/shared/stat-tile";
 import { ToneBadge } from "@/components/shared/status-pill";
@@ -61,8 +62,7 @@ export function DashboardView() {
   const days = daysUntil(event.date);
   const completedTasks = eventTasks.filter((t) => t.status === "completed").length;
   const taskPct = eventTasks.length > 0 ? (completedTasks / eventTasks.length) * 100 : 0;
-  const totalSpent = eventExpenses.reduce((sum, e) => sum + e.actualAmount, 0);
-  const budgetPct = event.totalBudget > 0 ? (totalSpent / event.totalBudget) * 100 : 0;
+  const { totalSpent, utilization: budgetPct } = calculateBudgetSummary(event.totalBudget, eventExpenses);
   const acceptedGuests = eventGuests.filter((g) => g.rsvp === "accepted").length;
   const pendingGuests = eventGuests.filter((g) => g.rsvp === "pending").length;
   const bookedVendors = eventVendors.filter((v) => v.status === "booked").length;

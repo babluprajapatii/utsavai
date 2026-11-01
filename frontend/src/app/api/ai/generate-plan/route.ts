@@ -9,6 +9,7 @@ import {
   apiError,
 } from '@/lib/api/response';
 import { generatePlanSchema } from '@/lib/api/validation';
+import type { Json } from '@/types/database';
 import { checkRateLimit, getRateLimitHeaders } from '@/lib/api/rate-limit';
 import {
   isGeminiConfigured,
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: auth.user.id,
         event_id: event.id,
-        plan_data: finalPlan as any,
+        plan_data: finalPlan as unknown as Json,
         status: 'Draft',
       })
       .select('id, created_at')

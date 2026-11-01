@@ -149,11 +149,11 @@ const faqs = [
   },
   {
     q: "Is my data stored online?",
-    a: "This is a frontend showcase with realistic demo data. When connected to a real backend, your events, tasks, and guests would be stored securely under your account.",
+    a: "Your celebration data, budgets, tasks, vendors, and guests are stored securely in Supabase PostgreSQL cloud database storage, protected by Row Level Security.",
   },
   {
     q: "Can I export my plan?",
-    a: "You can preview your complete event plan — including event summary, budget breakdown, tasks, timeline milestones, vendors, guests, and event-day schedule — in the Export view. Direct file export (PDF and calendar file) is planned for the production release.",
+    a: "Yes. You can download an RFC 5545 calendar file (.ics) for Google Calendar, Apple Calendar, or Outlook, and print or save your full event plan as a PDF via your browser.",
   },
   {
     q: "Does it work on mobile?",

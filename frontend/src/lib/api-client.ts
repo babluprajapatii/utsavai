@@ -3,6 +3,8 @@
  * Centralized, typed HTTP client connecting the frontend to API route handlers.
  */
 
+export type ApiRecord = Record<string, unknown>;
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -53,15 +55,15 @@ async function request<T>(
 export const apiClient = {
   events: {
     list: (limit = 50, offset = 0) =>
-      request<any[]>(`/api/events?limit=${limit}&offset=${offset}`),
-    get: (id: string) => request<any>(`/api/events/${id}`),
-    create: (data: any) =>
-      request<any>('/api/events', {
+      request<ApiRecord[]>(`/api/events?limit=${limit}&offset=${offset}`),
+    get: (id: string) => request<ApiRecord>(`/api/events/${id}`),
+    create: (data: ApiRecord) =>
+      request<ApiRecord>('/api/events', {
         method: 'POST',
         body: JSON.stringify(data),
       }),
-    update: (id: string, patch: any) =>
-      request<any>(`/api/events/${id}`, {
+    update: (id: string, patch: ApiRecord) =>
+      request<ApiRecord>(`/api/events/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(patch),
       }),
@@ -71,9 +73,9 @@ export const apiClient = {
 
   preferences: {
     get: (eventId: string) =>
-      request<any>(`/api/events/${eventId}/preferences`),
-    update: (eventId: string, data: any) =>
-      request<any>(`/api/events/${eventId}/preferences`, {
+      request<ApiRecord>(`/api/events/${eventId}/preferences`),
+    update: (eventId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/events/${eventId}/preferences`, {
         method: 'PUT',
         body: JSON.stringify(data),
       }),
@@ -81,19 +83,19 @@ export const apiClient = {
 
   budget: {
     getOverview: (eventId: string) =>
-      request<any>(`/api/events/${eventId}/budget`),
+      request<ApiRecord>(`/api/events/${eventId}/budget`),
   },
 
   budgetCategories: {
     list: (eventId: string) =>
-      request<any[]>(`/api/events/${eventId}/budget-categories`),
-    create: (eventId: string, data: any) =>
-      request<any>(`/api/events/${eventId}/budget-categories`, {
+      request<ApiRecord[]>(`/api/events/${eventId}/budget-categories`),
+    create: (eventId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/events/${eventId}/budget-categories`, {
         method: 'POST',
         body: JSON.stringify(data),
       }),
-    update: (categoryId: string, data: any) =>
-      request<any>(`/api/budget-categories/${categoryId}`, {
+    update: (categoryId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/budget-categories/${categoryId}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       }),
@@ -110,15 +112,15 @@ export const apiClient = {
       if (filters?.date_from) q.set('date_from', filters.date_from);
       if (filters?.date_to) q.set('date_to', filters.date_to);
       const queryStr = q.toString() ? `?${q.toString()}` : '';
-      return request<any[]>(`/api/events/${eventId}/expenses${queryStr}`);
+      return request<ApiRecord[]>(`/api/events/${eventId}/expenses${queryStr}`);
     },
-    create: (eventId: string, data: any) =>
-      request<any>(`/api/events/${eventId}/expenses`, {
+    create: (eventId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/events/${eventId}/expenses`, {
         method: 'POST',
         body: JSON.stringify(data),
       }),
-    update: (expenseId: string, data: any) =>
-      request<any>(`/api/expenses/${expenseId}`, {
+    update: (expenseId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/expenses/${expenseId}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       }),
@@ -132,24 +134,24 @@ export const apiClient = {
       if (filters?.status) q.set('status', filters.status);
       if (filters?.priority) q.set('priority', filters.priority);
       const queryStr = q.toString() ? `?${q.toString()}` : '';
-      return request<any[]>(`/api/events/${eventId}/tasks${queryStr}`);
+      return request<ApiRecord[]>(`/api/events/${eventId}/tasks${queryStr}`);
     },
-    create: (eventId: string, data: any) =>
-      request<any>(`/api/events/${eventId}/tasks`, {
+    create: (eventId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/events/${eventId}/tasks`, {
         method: 'POST',
         body: JSON.stringify(data),
       }),
-    update: (taskId: string, data: any) =>
-      request<any>(`/api/tasks/${taskId}`, {
+    update: (taskId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/tasks/${taskId}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       }),
     delete: (taskId: string) =>
       request<void>(`/api/tasks/${taskId}`, { method: 'DELETE' }),
     listDependencies: (taskId: string) =>
-      request<any[]>(`/api/tasks/${taskId}/dependencies`),
+      request<ApiRecord[]>(`/api/tasks/${taskId}/dependencies`),
     createDependency: (taskId: string, dependsOnTaskId: string) =>
-      request<any>(`/api/tasks/${taskId}/dependencies`, {
+      request<ApiRecord>(`/api/tasks/${taskId}/dependencies`, {
         method: 'POST',
         body: JSON.stringify({ depends_on_task_id: dependsOnTaskId }),
       }),
@@ -159,14 +161,14 @@ export const apiClient = {
 
   timeline: {
     list: (eventId: string) =>
-      request<any[]>(`/api/events/${eventId}/timeline`),
-    create: (eventId: string, data: any) =>
-      request<any>(`/api/events/${eventId}/timeline`, {
+      request<ApiRecord[]>(`/api/events/${eventId}/timeline`),
+    create: (eventId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/events/${eventId}/timeline`, {
         method: 'POST',
         body: JSON.stringify(data),
       }),
-    update: (milestoneId: string, data: any) =>
-      request<any>(`/api/timeline/${milestoneId}`, {
+    update: (milestoneId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/timeline/${milestoneId}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       }),
@@ -176,14 +178,14 @@ export const apiClient = {
 
   schedule: {
     list: (eventId: string) =>
-      request<any[]>(`/api/events/${eventId}/schedule`),
-    create: (eventId: string, data: any) =>
-      request<any>(`/api/events/${eventId}/schedule`, {
+      request<ApiRecord[]>(`/api/events/${eventId}/schedule`),
+    create: (eventId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/events/${eventId}/schedule`, {
         method: 'POST',
         body: JSON.stringify(data),
       }),
-    update: (scheduleId: string, data: any) =>
-      request<any>(`/api/schedule/${scheduleId}`, {
+    update: (scheduleId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/schedule/${scheduleId}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       }),
@@ -197,15 +199,15 @@ export const apiClient = {
       if (filters?.category) q.set('category', filters.category);
       if (filters?.status) q.set('status', filters.status);
       const queryStr = q.toString() ? `?${q.toString()}` : '';
-      return request<any[]>(`/api/events/${eventId}/vendors${queryStr}`);
+      return request<ApiRecord[]>(`/api/events/${eventId}/vendors${queryStr}`);
     },
-    create: (eventId: string, data: any) =>
-      request<any>(`/api/events/${eventId}/vendors`, {
+    create: (eventId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/events/${eventId}/vendors`, {
         method: 'POST',
         body: JSON.stringify(data),
       }),
-    update: (vendorId: string, data: any) =>
-      request<any>(`/api/vendors/${vendorId}`, {
+    update: (vendorId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/vendors/${vendorId}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       }),
@@ -219,15 +221,15 @@ export const apiClient = {
       if (filters?.rsvp) q.set('rsvp', filters.rsvp);
       if (filters?.group_name) q.set('group_name', filters.group_name);
       const queryStr = q.toString() ? `?${q.toString()}` : '';
-      return request<any[]>(`/api/events/${eventId}/guests${queryStr}`);
+      return request<ApiRecord[]>(`/api/events/${eventId}/guests${queryStr}`);
     },
-    create: (eventId: string, data: any) =>
-      request<any>(`/api/events/${eventId}/guests`, {
+    create: (eventId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/events/${eventId}/guests`, {
         method: 'POST',
         body: JSON.stringify(data),
       }),
-    update: (guestId: string, data: any) =>
-      request<any>(`/api/guests/${guestId}`, {
+    update: (guestId: string, data: ApiRecord) =>
+      request<ApiRecord>(`/api/guests/${guestId}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       }),
@@ -237,9 +239,9 @@ export const apiClient = {
 
   notifications: {
     list: (unreadOnly = false) =>
-      request<any[]>(`/api/notifications${unreadOnly ? '?unread_only=true' : ''}`),
+      request<ApiRecord[]>(`/api/notifications${unreadOnly ? '?unread_only=true' : ''}`),
     markRead: (id: string) =>
-      request<any>(`/api/notifications/${id}`, {
+      request<ApiRecord>(`/api/notifications/${id}`, {
         method: 'PATCH',
         body: JSON.stringify({ is_read: true }),
       }),
@@ -250,7 +252,7 @@ export const apiClient = {
   },
 
   dashboard: {
-    get: () => request<any>('/api/dashboard'),
+    get: () => request<ApiRecord>('/api/dashboard'),
   },
 
   ai: {
@@ -260,11 +262,11 @@ export const apiClient = {
         body: JSON.stringify({ event_id: eventId, message }),
       }),
     generatePlan: (eventId: string) =>
-      request<any>('/api/ai/generate-plan', {
+      request<ApiRecord>('/api/ai/generate-plan', {
         method: 'POST',
         body: JSON.stringify({ event_id: eventId }),
       }),
-    acceptPlan: (planId: string, data?: any) =>
+    acceptPlan: (planId: string, data?: ApiRecord) =>
       request<{ tasksCreated: number; milestonesCreated: number; scheduleItemsCreated: number }>(
         `/api/ai/plans/${planId}/accept`,
         {
@@ -274,4 +276,3 @@ export const apiClient = {
       ),
   },
 };
-

@@ -16,7 +16,7 @@ import {
   VendorStatus,
   EventType,
   BudgetCategory,
-} from "./mock-data";
+} from "@/types/domain";
 import { uid } from "./format";
 import { getCurrentUser, onAuthStateChange, signOutUser } from "./auth";
 import { apiClient } from "./api-client";
@@ -147,7 +147,7 @@ function normalizeVendorStatus(value: unknown): VendorStatus {
   return "researching";
 }
 
-function toDisplayEvent(raw: any): CelebrationEvent {
+function toDisplayEvent(raw: Record<string, any>): CelebrationEvent {
   const priorities = Array.isArray(raw?.priorities)
     ? raw.priorities.map((item: unknown) => String(item))
     : Array.isArray(raw?.event_preferences?.priorities)
@@ -174,7 +174,7 @@ function toDisplayEvent(raw: any): CelebrationEvent {
   };
 }
 
-function toDisplayTask(raw: any): Task {
+function toDisplayTask(raw: Record<string, any>): Task {
   return {
     id: raw?.id ?? uid("task"),
     title: raw?.title ?? "Untitled task",
@@ -185,13 +185,13 @@ function toDisplayTask(raw: any): Task {
     category: (raw?.category as Task["category"]) ?? "planning",
     owner: raw?.assigned_to ?? raw?.owner ?? undefined,
     dependsOn: Array.isArray(raw?.depends_on)
-      ? raw.depends_on.map((item: any) => String(item))
+      ? (raw.depends_on as unknown[]).map((item) => String(item))
       : [],
     eventId: raw?.event_id ?? raw?.eventId ?? "",
   };
 }
 
-function toDisplayVendor(raw: any): Vendor {
+function toDisplayVendor(raw: Record<string, any>): Vendor {
   return {
     id: raw?.id ?? uid("vendor"),
     name: raw?.name ?? "Untitled vendor",
@@ -208,7 +208,7 @@ function toDisplayVendor(raw: any): Vendor {
   };
 }
 
-function toDisplayGuest(raw: any): Guest {
+function toDisplayGuest(raw: Record<string, any>): Guest {
   return {
     id: raw?.id ?? uid("g"),
     name: raw?.name ?? "Guest",
@@ -224,7 +224,7 @@ function toDisplayGuest(raw: any): Guest {
   };
 }
 
-function toDisplayExpense(raw: any): Expense {
+function toDisplayExpense(raw: Record<string, any>): Expense {
   return {
     id: raw?.id ?? uid("exp"),
     category: normalizeBudgetCategory(raw?.category ?? raw?.category_name),
@@ -237,7 +237,7 @@ function toDisplayExpense(raw: any): Expense {
   };
 }
 
-function toDisplayMilestone(raw: any): TimelineMilestone {
+function toDisplayMilestone(raw: Record<string, any>): TimelineMilestone {
   return {
     id: raw?.id ?? uid("ms"),
     title: raw?.title ?? "Milestone",
@@ -248,7 +248,7 @@ function toDisplayMilestone(raw: any): TimelineMilestone {
   };
 }
 
-function toDisplaySchedule(raw: any): ScheduleItem {
+function toDisplaySchedule(raw: Record<string, any>): ScheduleItem {
   return {
     id: raw?.id ?? uid("sch"),
     time: raw?.start_time ?? raw?.time ?? "09:00",
@@ -262,7 +262,7 @@ function toDisplaySchedule(raw: any): ScheduleItem {
   };
 }
 
-function toDisplayNotification(raw: any): AppNotification {
+function toDisplayNotification(raw: Record<string, any>): AppNotification {
   return {
     id: raw?.id ?? uid("n"),
     type: (raw?.type ?? "task_completed") as AppNotification["type"],

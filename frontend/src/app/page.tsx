@@ -54,8 +54,10 @@ export default function Home() {
       if (typeof window === "undefined") return;
       const hash = window.location.hash.replace("#", "").toLowerCase();
       const validViews = ["home", "about", "features", "faq", "login", "register", "privacy", "terms"] as const;
-      if (validViews.includes(hash as any)) {
-        navigate({ kind: "public", view: hash as any });
+      type ValidPublicView = (typeof validViews)[number];
+      const isPublicView = (v: string): v is ValidPublicView => (validViews as readonly string[]).includes(v);
+      if (isPublicView(hash)) {
+        navigate({ kind: "public", view: hash });
       }
     };
     handleHash();

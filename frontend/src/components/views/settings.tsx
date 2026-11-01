@@ -278,7 +278,7 @@ export function SettingsView() {
               <Label htmlFor="ai-style" className="block mb-2">Response style</Label>
               <Select
                 value={aiPrefs.responseStyle}
-                onValueChange={(v) => setAiPrefs((p) => ({ ...p, responseStyle: v as any }))}
+                onValueChange={(v) => setAiPrefs((p) => ({ ...p, responseStyle: v as "concise" | "detailed" }))}
               >
                 <SelectTrigger id="ai-style" className="sm:w-64">
                   <SelectValue />
@@ -332,7 +332,7 @@ export function SettingsView() {
               <Label className="block mb-2">Density</Label>
               <Select
                 value={appearance.density}
-                onValueChange={(v) => setAppearance((p) => ({ ...p, density: v as any }))}
+                onValueChange={(v) => setAppearance((p) => ({ ...p, density: v as "comfortable" | "compact" }))}
               >
                 <SelectTrigger className="sm:w-64">
                   <SelectValue />
