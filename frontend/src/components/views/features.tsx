@@ -212,18 +212,34 @@ export function FeaturesView() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <Button
+                asChild
                 size="lg"
-                onClick={() => navigate({ kind: "public", view: "register" })}
               >
-                Start Planning Free
-                <ArrowRight className="h-4 w-4 ml-1.5" />
+                <a
+                  href="#register"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate({ kind: "public", view: "register" });
+                  }}
+                >
+                  Start Planning Free
+                  <ArrowRight className="h-4 w-4 ml-1.5" aria-hidden="true" />
+                </a>
               </Button>
               <Button
+                asChild
                 size="lg"
                 variant="outline"
-                onClick={() => navigate({ kind: "public", view: "faq" })}
               >
-                View Planning FAQs
+                <a
+                  href="#faq"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate({ kind: "public", view: "faq" });
+                  }}
+                >
+                  View Planning FAQs
+                </a>
               </Button>
             </div>
           </div>

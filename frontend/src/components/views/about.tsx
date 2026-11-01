@@ -186,17 +186,33 @@ export function AboutView() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3">
               <Button
+                asChild
                 size="lg"
-                onClick={() => navigate({ kind: "public", view: "register" })}
               >
-                Start Planning
+                <a
+                  href="#register"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate({ kind: "public", view: "register" });
+                  }}
+                >
+                  Start Planning
+                </a>
               </Button>
               <Button
+                asChild
                 size="lg"
                 variant="outline"
-                onClick={() => navigate({ kind: "public", view: "features" })}
               >
-                See Features
+                <a
+                  href="#features"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate({ kind: "public", view: "features" });
+                  }}
+                >
+                  See Features
+                </a>
               </Button>
             </div>
           </div>

@@ -249,6 +249,85 @@ export function HomeView() {
           </div>
         </section>
 
+        {/* Executive Summary & Key Takeaways */}
+        <section className="border-b border-border py-12 sm:py-16 bg-secondary/20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="rounded-xl border border-border bg-card p-6 sm:p-8 shadow-xs">
+              <div className="flex flex-col gap-2 pb-6 border-b border-border">
+                <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
+                  <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                  Platform Overview &amp; Specifications
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight font-display text-foreground">
+                  Key Takeaways: What You Need to Know About UtsavAI
+                </h2>
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-6">
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold font-display text-foreground flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
+                    Unified Workspace
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Brings target INR budgeting, milestone task checklists, vendor coordination, and guest RSVPs into one organized dashboard instead of disjointed spreadsheets.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold font-display text-foreground flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
+                    Contingency-Aware Budget
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Provides a dedicated contingency category kept separate from main expense buckets, helping organizers plan for price variations and surprise expenses.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold font-display text-foreground flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
+                    Context-Aware AI
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    AI planning assistant operates directly on your celebration parameters. Generates starter drafts that remain 100% customizable and user-editable.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold font-display text-foreground flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
+                    Two Operational Timelines
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Separates long-range planning milestones (weeks/months ahead) from the hour-by-hour operational run sheet needed on the event day itself.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-border flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <span>Audience: Couples, families, and community coordinators</span>
+                  <span>•</span>
+                  <span>Scope: Planning workspace — users negotiate and contract with vendors directly</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <a
+                    href="#features"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate({ kind: "public", view: "features" });
+                    }}
+                    className="font-medium text-primary hover:underline inline-flex items-center gap-1"
+                  >
+                    Explore all features &rarr;
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Event types */}
         <section className="border-b border-border py-16 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

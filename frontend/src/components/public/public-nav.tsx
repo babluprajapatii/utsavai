@@ -31,34 +31,40 @@ export function PublicNav() {
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/85 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
-          <button
-            type="button"
-            onClick={() => go("home")}
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              go("home");
+            }}
             className="flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="UtsavAI home"
           >
             <Logo priority />
-          </button>
+          </a>
 
           <nav
             className="hidden md:flex items-center gap-1"
             aria-label="Primary"
           >
             {navItems.map((item) => (
-              <button
+              <a
                 key={item.label}
-                type="button"
-                onClick={() => go(item.view)}
+                href={`#${item.view}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  go(item.view);
+                }}
                 aria-current={currentView === item.view ? "page" : undefined}
                 className={cn(
-                  "px-3 py-2 text-sm font-medium rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  "px-3 py-2 text-sm font-medium rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 inline-flex items-center",
                   currentView === item.view
                     ? "text-primary bg-primary/5"
                     : "text-foreground/80 hover:text-foreground hover:bg-secondary/60"
                 )}
               >
                 {item.label}
-              </button>
+              </a>
             ))}
           </nav>
 
@@ -66,15 +72,31 @@ export function PublicNav() {
             <ThemeToggle />
             <div className="hidden md:flex items-center gap-2">
               <Button
+                asChild
                 variant="ghost"
                 size="sm"
-                onClick={() => go("login")}
                 className="text-foreground/80 hover:text-foreground"
               >
-                Login
+                <a
+                  href="#login"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    go("login");
+                  }}
+                >
+                  Login
+                </a>
               </Button>
-              <Button size="sm" onClick={() => go("register")}>
-                Start Planning
+              <Button asChild size="sm">
+                <a
+                  href="#register"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    go("register");
+                  }}
+                >
+                  Start Planning
+                </a>
               </Button>
             </div>
 
@@ -96,31 +118,50 @@ export function PublicNav() {
             className="md:hidden border-t border-border py-4 space-y-1"
           >
             {navItems.map((item) => (
-              <button
+              <a
                 key={item.label}
-                type="button"
-                onClick={() => go(item.view)}
+                href={`#${item.view}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  go(item.view);
+                }}
                 aria-current={currentView === item.view ? "page" : undefined}
                 className={cn(
-                  "block w-full text-left px-3 py-2.5 text-sm font-medium rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  "block w-full text-left px-3 py-3 text-sm font-medium rounded-md min-h-[44px] flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   currentView === item.view
                     ? "text-primary bg-primary/5"
                     : "text-foreground hover:bg-secondary"
                 )}
               >
                 {item.label}
-              </button>
+              </a>
             ))}
             <div className="pt-2 flex flex-col gap-2">
               <Button
+                asChild
                 variant="outline"
-                onClick={() => go("login")}
-                className="w-full"
+                className="w-full min-h-[44px]"
               >
-                Login
+                <a
+                  href="#login"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    go("login");
+                  }}
+                >
+                  Login
+                </a>
               </Button>
-              <Button onClick={() => go("register")} className="w-full">
-                Start Planning
+              <Button asChild className="w-full min-h-[44px]">
+                <a
+                  href="#register"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    go("register");
+                  }}
+                >
+                  Start Planning
+                </a>
               </Button>
             </div>
           </nav>

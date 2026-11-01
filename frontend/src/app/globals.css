@@ -70,7 +70,7 @@
   --secondary: oklch(0.94 0.012 70);
   --secondary-foreground: oklch(0.28 0.018 45);
   --muted: oklch(0.95 0.008 70);
-  --muted-foreground: oklch(0.52 0.012 55);
+  --muted-foreground: oklch(0.46 0.015 50);
   /* Warm tan accent */
   --accent: oklch(0.92 0.025 70);
   --accent-foreground: oklch(0.30 0.025 50);

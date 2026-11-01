@@ -166,17 +166,33 @@ export function FaqView() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <Button
+                asChild
                 size="lg"
-                onClick={() => navigate({ kind: "public", view: "register" })}
               >
-                Start Planning Free
+                <a
+                  href="#register"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate({ kind: "public", view: "register" });
+                  }}
+                >
+                  Start Planning Free
+                </a>
               </Button>
               <Button
+                asChild
                 size="lg"
                 variant="outline"
-                onClick={() => navigate({ kind: "public", view: "features" })}
               >
-                Explore Features &amp; Workflows
+                <a
+                  href="#features"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate({ kind: "public", view: "features" });
+                  }}
+                >
+                  Explore Features &amp; Workflows
+                </a>
               </Button>
             </div>
           </div>
